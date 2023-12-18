@@ -1,0 +1,186 @@
+#!/bin/bash
+#
+#  Command Line Interface to start all services associated with the Tutorial
+#  For this tutorial the commands are merely a convenience script to run docker-compose
+#
+
+set -e
+
+ORION="http://orionld:1026/version"
+CONTEXT="http://context/ngsi-context.jsonld"
+CORE_CONTEXT="https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.6.jsonld"
+
+dockerCmd="docker compose"
+if (( $# == 2 )); then
+    dockerCmd="docker-compose"
+fi
+
+if (( $# < 1 )); then
+	echo "Illegal number of parameters"
+	echo "usage: services [create|start|stop]"
+	exit 1
+fi
+
+pause(){
+	printf " "
+	count="$1"
+	[ "$count" -gt 59 ] && printf "Waiting one minute " || printf " Waiting a few seconds ";
+	while [ "$count" -gt 0 ]
+	do
+		printf "."
+		sleep 3
+		count=$((count - 3))
+	done
+	echo ""
+}
+
+getHeartbeat(){
+	eval "response=$(docker run --network fiware_default --rm quay.io/curl/curl -s -o /dev/null -w "%{http_code}" "$1")"
+}
+
+waitForOrionLD () {
+	echo -e "\n⏳ Waiting for \033[1;34mOrion-LD\033[0m to be available\n"
+
+	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-orionld` == "healthy" ]
+	do
+		echo -e "\nContext Broker HTTP state: ${response} (waiting for 200)"
+		pause 6
+		getHeartbeat "${ORION}"
+	done
+}
+
+waitForCoreContext () {
+	echo -e "\n⏳ Checking availability of \033[1m core @context\033[0m from ETSI\n"
+	eval "response=$(docker run --rm quay.io/curl/curl -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
+	while [ "${response}" -eq 000 ]
+	do
+		echo -e "\n@context HTTP state: ${response} (waiting for 200)"
+		pause 3
+		eval "response=$(docker run --rm quay.io/curl/curl -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
+	done
+}
+
+waitForUserContext () {
+	echo -e "\n⏳ Waiting for user \033[1m@context\033[0m to be available\n"
+	getHeartbeat "${CONTEXT}"
+	while [ "${response}" -eq 000 ]
+	do
+		echo -e "\n@context HTTP state: ${response} (waiting for 200)"
+		pause 3
+		getHeartbeat "${CONTEXT}"
+	done
+}
+
+waitForMongo () {
+	echo -e "\n⏳ Waiting for \033[1mMongoDB\033[0m to be available\n"
+	while ! [ `docker inspect --format='{{.State.Health.Status}}' db-mongo` == "healthy" ]
+	do
+		sleep 1
+	done
+}
+
+loadData () {
+	waitForUserContext
+	export CONTEXT_BROKER="$1"
+	docker run --rm -v $(pwd)/import-data:/import-data \
+		--network fiware_default \
+		-e CONTEXT_BROKER=${CONTEXT_BROKER} \
+		-e TUTORIAL_DATA_MODELS_CONTEXT="http://context/ngsi-context.jsonld" \
+		-e PIG_COUNT=${PIG_COUNT:-4} \
+		-e COW_COUNT=${COW_COUNT:-4} \
+		--entrypoint /bin/ash quay.io/curl/curl /import-data
+	waitForIoTAgent
+	docker run --rm -v $(pwd)/provision-devices:/provision-devices \
+		--network fiware_default \
+		-e CONTEXT_BROKER=${CONTEXT_BROKER} \
+		-e TUTORIAL_DATA_MODELS_CONTEXT="http://context/ngsi-context.jsonld" \
+		--entrypoint /bin/ash quay.io/curl/curl /provision-devices
+	docker run --rm -v $(pwd)/link-devices:/link-devices \
+		--network fiware_default \
+		--entrypoint /bin/ash quay.io/curl/curl /link-devices
+	echo ""
+}
+
+stoppingContainers () {
+	CONTAINERS=$(docker ps --filter "label=org.fiware=tutorial" -aq)
+	if [[ -n $CONTAINERS ]]; then
+		echo "Stopping containers"
+		docker rm -f $CONTAINERS || true
+	fi
+	VOLUMES=$(docker volume ls -qf dangling=true)
+	if [[ -n $VOLUMES ]]; then
+		echo "Removing old volumes"
+		docker volume rm $VOLUMES || true
+	fi
+	NETWORKS=$(docker network ls  --filter "label=org.fiware=tutorial" -q)
+	if [[ -n $NETWORKS ]]; then
+		echo "Removing tutorial networks"
+		docker network rm $NETWORKS || true
+	fi
+}
+
+displayServices () {
+	echo ""
+	docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" --filter name="$1"
+
+	echo ""
+}
+
+addDatabaseIndex () {
+	printf "Adding appropriate \033[1mMongoDB\033[0m indexes for \033[1;34mOrion\033[0m  ..."
+	docker exec  db-mongo mongo --eval '
+	conn = new Mongo();db.createCollection("orion");
+	db = conn.getDB("orion");
+	db.createCollection("entities");
+	db.entities.createIndex({"_id.servicePath": 1, "_id.id": 1, "_id.type": 1}, {unique: true});
+	db.entities.createIndex({"_id.type": 1});
+	db.entities.createIndex({"_id.id": 1});' > /dev/null
+
+	docker exec  db-mongo mongo --eval '
+	conn = new Mongo();db.createCollection("orion-openiot");
+	db = conn.getDB("orion-openiot");
+	db.createCollection("entities");
+	db.entities.createIndex({"_id.servicePath": 1, "_id.id": 1, "_id.type": 1}, {unique: true});
+	db.entities.createIndex({"_id.type": 1});
+	db.entities.createIndex({"_id.id": 1});' > /dev/null
+	echo -e " \033[1;32mdone\033[0m"
+}
+
+command="$1"
+case "${command}" in
+	"help")
+        echo "usage: services [create|start|stop]"
+        ;;
+	 "start")
+		export $(cat .env | grep "#" -v)
+		stoppingContainers
+		waitForCoreContext
+		echo -e "Starting containers:  \033[1;34mOrionLD\033[0m, a linked data \033[1mContext\033[0m, and \033[1mMongoDB\033[0m database."
+		echo -e "- \033[1;34mOrionLD\033[0m is the FIWARE Context Broker"
+		echo -e "- Data models \033[1m@context\033[0m is supplied externally"
+		echo ""
+		${dockerCmd} -f docker-compose/orionld.yml -p fiware up -d --renew-anon-volumes
+		displayServices "orionld|fiware"
+		waitForMongo
+		addDatabaseIndex
+		waitForOrionLD
+		# loadData orionld:1026
+		echo -e "\033[1;34m${command}\033[0m is now running and exposed on localhost:${EXPOSED_PORT}"
+		echo -e "Now open \033[4mhttp://localhost:3000/device/monitor\033[0m"
+		;;
+	"stop")
+		export $(cat .env | grep "#" -v)
+		stoppingContainers
+		;;
+ 	"create")
+		export $(cat .env | grep "#" -v)
+		echo "Pulling Docker images"
+		docker pull -q quay.io/curl/curl
+		${dockerCmd} -f docker-compose/orionld.yml -f pull
+		;;
+	*)
+		echo "Command not Found."
+		echo "usage: services [create|start|stop]"
+		exit 127;
+		;;
+esac
