@@ -1,0 +1,20 @@
+tasks:
+  - name: Pull Images
+    init: ./services create
+
+ports:
+  - name: JSON-LD context (HTTPD)
+    description: Public User JSON-LD context
+    port: 3004
+    onOpen: notify
+    visibility: public
+  - name: NGSI-LD Context Broker
+    description: NGSI-LD Context Broker
+    port: 1026
+    onOpen: notify
+    visibility: public
+  - name: MongoDB
+    description: Database for OrionLD
+    port: 27017
+    onOpen: ignore
+

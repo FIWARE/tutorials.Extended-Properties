@@ -10,42 +10,33 @@ This tutorial examines the management multilingual capabilities inside the ETSI 
 [Postman documentation](https://fiware.github.io/tutorials.Getting-Started/ngsi-ld.html)
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/610b7cd32e4b07b8e9c9)
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FIWARE/tutorials.Getting-Started/tree/NGSI-LD)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://github.com/flopezag/tutorials.Multilanguage/tree/develop)
 
 ## Contents
 
 <details>
 <summary><strong>Details</strong></summary>
 
--   [Working with `@context` files](#working-with-context-files)
-    -   [NGSI-LD Rules](#ngsi-ld-rules)
-    -   [Content Negotiation and the `Content-Type` and `Accept` Headers](#content-negotiation-and-the-content-type-and-accept-headers)
+-   [NGSI-LD Rules](#ngsi-ld-rules)
 -   [Prerequisites](#prerequisites)
-    -   [Docker](#docker)
-    -   [Cygwin](#cygwin)
+  -   [Docker Engine](#docker-engine-img-srchttpswwwdockercomfaviconico-alignleft--height30-width30-styleborder-right-stylesolid-border-right-width10px-border-colortransparent-background-transparent)
+  -   [jq](#jq-img-srchttpsjqlanggithubiojqjqpng-alignleft--height19-width50-styleborder-right-stylesolid-border-right-width10px-border-colortransparent-background-transparent)
+  -   [Postman](#postman-img-srchttpswwwpostmancom_ar-assetsimagesfavicon-1-48png-alignleft--height25-width35-styleborder-right-stylesolid-border-right-width10px-border-colortransparent-background-transparent)
+  -   [GitPod](#gitpod-img-srchttpsgitpodiofaviconico-alignleft--height30-width30)
 -   [Architecture](#architecture)
--   [Start Up](#start-up)
--   [Creating NGSI-LD data entities.](#creating-ngsi-ld-data-entities)
-    -   [Prerequisites](#prerequisites-1)
-        -   [Reading `@context` files](#reading-context-files)
-        -   [Checking the service health](#checking-the-service-health)
-        -   [Creating Data entities](#creating-data-entities)
-        -   [Using core `@context` - defining NGSI-LD entities](#using-core-context---defining-ngsi-ld-entities)
-        -   [Defining Properties-of-Properties within the NGSI-LD entity definition](#defining-properties-of-properties-within-the-ngsi-ld-entity-definition)
-    -   [Querying Context Data](#querying-context-data)
-        -   [Obtain entity data by FQN Type](#obtain-entity-data-by-fqn-type)
-        -   [Obtain entity data by ID](#obtain-entity-data-by-id)
-        -   [Obtain entity data by type](#obtain-entity-data-by-type)
-        -   [Filter context data by comparing the values of an attribute](#filter-context-data-by-comparing-the-values-of-an-attribute)
-        -   [Using an alternative `@context`](#using-an-alternative-context)
-        -   [Filter context data by comparing the values of an attribute in an Array](#filter-context-data-by-comparing-the-values-of-an-attribute-in-an-array)
-        -   [Filter context data by comparing the values of a sub-attribute](#filter-context-data-by-comparing-the-values-of-a-sub-attribute)
-        -   [Filter context data by querying metadata](#filter-context-data-by-querying-metadata)
-        -   [Filter context data by comparing the values of a geo:json attribute](#filter-context-data-by-comparing-the-values-of-a-geojson-attribute)
+  -   [Start Up](#start-up)
+  -   [Checking the system](#checking-the-system)
+-   [Working with multilanguage properties](#working-with-multilanguage-properties)
+  -   [Creating a new data entity](#creating-a-new-data-entity)
+  -   [Reading multilingual data in normalized format](#reading-multilingual-data-in-normalized-format)
+  -   [Reading multilingual data in key-value format](#reading-multilingual-data-in-key-value-format)
+  -   [Querying for Multilingual Data](#querying-for-multilingual-data)
+-   [Using an alternative `@context`](#using-an-alternative-context)
+-   [License](#license)
 
 </details>
 
-# NGSI-LD Rules
+## NGSI-LD Rules
 
 **NGSI-LD** is a formally structured _extended subset_ of **JSON-LD**. Therefore, **NGSI-LD** offers all the
 interoperability and flexibility of **JSON-LD** itself. It also defines its own core `@context` which cannot be
@@ -195,7 +186,7 @@ listening on the default port `27017` and the httpd web server is offering `@con
 are also exposing ports externally - this is purely for the tutorial access - so that cUrl or Postman can access them
 without being part of the same network. The command-line initialization should be self-explanatory.
 
-## Start Up
+### Start Up
 
 All services can be initialised from the command-line by running the [services](/services) Bash script provided within 
 the repository. Please clone the repository and create the necessary images by running the commands as shown:
@@ -215,11 +206,7 @@ cd tutorials.Multilanguage
 
 ---
 
-## Creating NGSI-LD data entities.
-
-This tutorial creates an initial Point of Interest entity to be used by the Farm Management system.
-
-## Prerequisites
+### Checking the system
 
 Once the services have started up, and before interacting with the context broker itself, it is useful to check that the
 necessary prerequisites are in place.
@@ -274,7 +261,21 @@ The response will look similar to the following:
 The format of the version response has not changed. The `release_date` must be 26th August 2023 or later to be able to
 work with the requests defined below.
 
+## Working with multilanguage properties
+
+Sometimes, it is required the use of different language in the creation and consumption of Entity data. In order to 
+proceed, we need to create initially a new entity data that define the new data type `LanguageProperty` and use the 
+sub-attribute `LanguageMap` (and not value) to keep the representation of the values of this attribute in different 
+languages. 
+
+This `LanguageMap` corresponds to a JSON object consisting of a series of key-value pairs where the keys shall be JSON 
+strings representing [IETF RFC 5646](https://www.rfc-editor.org/info/rfc5646) language codes.
+
 ### Creating a new data entity
+
+Let's create a Poit of Interest data in which we want to keep the detail information about the Helsinki Cathedral, gut
+for the value of the name, we use three different languages, English, Finnish, and Italian. The process will be to send 
+a request to the Broker with the following information:
 
 #### :two: Request:
 
@@ -313,6 +314,8 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
 
 #### Response:
 
+The response that we obtain will be something similar (except the `Date` value) to the following content:
+
 ```console
 HTTP/1.1 201 Created
 Date: Sat, 16 Dec 2023 08:39:32 GMT
@@ -322,14 +325,17 @@ Content-Length: 0
 
 ### Reading multilingual data in normalized format
 
-without language details normalized
+Imaging that we want to get details of a specific entity (`urn:ngsi-ld:PointOfInterest:poi123456`) in normalized format
+and without any reference to the language that we want to obtain the data. We should execute the following command:
 
-#### :two: Request:
+#### :three: Request:
 
 ```console
 curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
 ```
+
+And the response that we obtain include all the string values defined for the different languages:
 
 #### Response:
 
@@ -348,14 +354,20 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfIntere
 }
 ```
 
-with language details normalized
+On the other side, if we decided to specify that we wanted to receive the value (or values) but only in *Italian* 
+language, we should specify the corresponding query parameter `lang` equal to `it`.
 
-#### :three: Request:
+#### :four: Request:
 
 ```console
 curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name&lang=it' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
 ```
+
+In this case, the response provides a new sub-attribute `lang` with the details of the language that was selected 
+together with the sub-attribute `value` with the content of the string in the corresponding *Italian* language. It is 
+important to notice that in this response the value of `type` is *Property* and there is no `LanguageMap` but `value` 
+sub-attribute.
 
 #### Response:
 
@@ -373,9 +385,10 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfIntere
 
 ### Reading multilingual data in key-value format
 
-Without language details:
+If we wanted to get the response in key-value format, we need to send the corresponding request parameter `options` 
+equal to `keyValues`:
 
-#### :four: Request:
+#### :five: Request:
 
 ```console
 curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name&options=keyValues' \
@@ -398,9 +411,9 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfIntere
 }
 ```
 
-with language details in key-value format
+and if we wanted to get only the corresponding value of the `name` in *English* language:
 
-#### :five: Request:
+#### :six: Request:
 
 ```console
 curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name&options=keyValues&lang=en' \
@@ -418,12 +431,12 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfIntere
 ```
 
 
-### Querying for Multilingual Data 
+### Querying for Multilingual Data
 
 Use the standard Object attribute bracket `[ ]` notation when querying `LanguageProperties`. For example, if we want to
 obtain the PointOfInterest whose name is equal to `Helsinki Cathedral` in English.
 
-#### :six: Request:
+#### :seven: Request:
 
 ```console
 curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=name\[it\]=="Duomo+di+Helsinki"' \
@@ -463,9 +476,9 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=na
 ]
 ```
 
-Now, I wanted to receive the response but corresponding to the finish language:
+Now, I wanted to receive the response but corresponding to the *Finish* language:
 
-#### :seven: Request:
+#### :eight: Request:
 
 ```console
 curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=name\[it\]=="Duomo+di+Helsinki"&lang=fi' \
@@ -502,47 +515,7 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=na
 ]
 ```
 
-and if I want to receive the answer to all the languages that include Helsinki
-
-#### :eight: Request:
-
-```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=name\[*\]=="Helsinki"' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
-```
-
-#### Response:
-
-```jsonld
-[
-  {
-    "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-    "type": "PointOfInterest",
-    "category": {
-      "type": "Property",
-      "value": "107"
-    },
-    "location": {
-      "type": "GeoProperty",
-      "value": {
-        "type": "Point",
-        "coordinates": [
-          60.17021,
-          24.95212
-        ]
-      }
-    },
-    "name": {
-      "type": "Property",
-      "lang": "fi",
-      "value": "Helsingin tuomiokirkko"
-    }
-  }
-]
-```
-
-
-### Using an alternative `@context`
+## Using an alternative `@context`
 
 The simple **NGSI-LD** `@context` is merely a mechanism for mapping URNs. It is therefore possible to retrieve _the same
 data_ using a different set of short names, in different languages.
@@ -555,7 +528,7 @@ made using alternate short names (e.g., `type=PointOfInterest` becomes `type=Pun
 There is a limitation in this mapping, it is not possible to change the core context attribute names, like _id_, _type_,
 or _context_ for example.
 
-Let's try to recover the information about the point of interest using the alternate context file for the Italian 
+Let's try to recover the information about the point of interest using the alternate context file for the *Italian* 
 language.
 
 #### :nine: Request:
@@ -601,7 +574,7 @@ which correspond to the short names provided in the alternate context. Note that
 ]
 ```
 
-If we change the context to a Finnish language:
+If we change the context to a *Finnish* language:
 
 #### :ten: Request:
 
