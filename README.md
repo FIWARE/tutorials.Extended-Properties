@@ -42,12 +42,12 @@ interoperability and flexibility of **JSON-LD** itself. It also defines its own 
 overridden for **NGSI-LD** operations. This means that **NGSI-LD** users agree to a common well-defined set of rules for
 structuring their data, and then supplement this with the rest of the **JSON-LD** specification.
 
-Whilst interacting directly with **NGSI-LD** interface of the context broker the additional **NGSI-LD** rules must be
+Whilst interacting directly with the **NGSI-LD** interface of the context broker the additional **NGSI-LD** rules must be
 respected. However after the data has been extracted it is possible to loosen this requirement and pass the results to
 third parties as **JSON-LD**.
 
 This tutorial is a simple introduction to the rules and restrictions behind **NGSI-LD** and will create some **NGSI-LD**
-entities and then extract the data in different formats. The two main data formats are _normalized_ and
+entities and then extract the data in different formats. The two main data formats are _normalised_ and
 _key-value-pairs_. Data returned in the _normalised_ format respects the **NGSI-LD** rules and may be used directly by
 another context broker (or any other component offering an **NGSI-LD** interface). Data returned in the
 _key-value-pairs_ format is by definition not **NGSI-LD**.
@@ -57,18 +57,18 @@ _key-value-pairs_ format is by definition not **NGSI-LD**.
 ### Docker Engine <img src="https://www.docker.com/favicon.ico" align="left"  height="30" width="30" style="border-right-style:solid; border-right-width:10px; border-color:transparent; background: transparent">
 
 To keep things simple all components will be run using [Docker](https://www.docker.com). **Docker** is a container
-technology which allows to different components isolated into their respective environments.
+technology which allows different components to be isolated into their respective environments.
 
 -   To install Docker on Windows follow the instructions [here](https://docs.docker.com/docker-for-windows/)
 -   To install Docker on Mac follow the instructions [here](https://docs.docker.com/docker-for-mac/)
 -   To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)
 
 **Docker Compose** is a tool for defining and running multi-container Docker applications. A
-[YAML file](/docker-compose/orionld.yml) is used configure the required services for the application. This means all 
+[YAML file](/docker-compose/orionld.yml) is used to configure the required services for the application. This means all 
 container services can be brought up in a single command. 
 
 Compose V1 is discontinued, nevertheless Compose V2 has replaced it and is now integrated into all current Docker 
-Desktop versions. Therefore, it is not needed to install anymore any extension to the docker engine to execute the 
+Desktop versions. Therefore, it is not needed to install the extension to the docker engine to execute the 
 docker compose commands.
 
 ### jq <img src="https://jqlang.github.io/jq/jq.png" align="left"  height="19" width="50" style="border-right-style:solid; border-right-width:10px; border-color:transparent; background: transparent">
@@ -94,8 +94,8 @@ is based on Ubuntu and includes Java `11.0.16` and Maven `3.8.6`.
 
 ## Architecture
 
-The demo application will send and receive NGSI-LD calls to a compliant context broker. Since the standardized NGSI-LD
-interface is available across multiple context brokers, so we only need to pick one - for example the
+The demo application will send and receive NGSI-LD calls to a compliant context broker. Since the standardised NGSI-LD
+interface is available across multiple context brokers, we only need to pick one - for example the
 [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/). The application will therefore only make use of
 one FIWARE component.
 
@@ -180,7 +180,7 @@ ld-context:
       test: (wget --server-response --spider --quiet  http://ld-context/ngsi-context.jsonld 2>&1 | awk 'NR==1{print $$2}'|  grep -q -e "200") || exit 1
 ```
 
-All containers are residing on the same network - the OrionLD Context Broker is listening on Port `1026` and MongoDB is
+All containers reside on the same network - the OrionLD Context Broker is listening on Port `1026` and MongoDB is
 listening on the default port `27017` and the httpd web server is offering `@context` files on port `80`. All containers
 are also exposing ports externally - this is purely for the tutorial access - so that cUrl or Postman can access them
 without being part of the same network. The command-line initialization should be self-explanatory.
@@ -215,18 +215,18 @@ necessary prerequisites are in place.
 Three `@context` files have been generated and hosted on the tutorial application. They serve different roles.
 
 -   [`ngsi-context.jsonld`](http://localhost:3000/data-models/ngsi-context.jsonld) -The **NGSI-LD** `@context` serves to
-    define all attributes when sending data to the context broker or retrieving data in _normalized_ format. This
+    define all attributes when sending data to the context broker or retrieving data in _normalised_ format. This
     `@context` must be used for all **NGSI-LD** to **NGSI-LD** interactions.
 
 -   [`alternate-context.jsonld`](http://localhost:3000/data-models/alternate-context.jsonld) is an alternative
     **JSON-LD** definition of the attributes of the data models used by a third-party. Internally their billing 
-    application used different short names for attributes depending of the language. Their `@context` file reflects 
+    application used different short names for attributes depending on the language. Their `@context` file reflects 
     the agreed mapping between attribute names.
 
 The full data model description for a **PointOfInterest** entity as used in this tutorial is based on the standard 
 [Smart Data Models definition](https://github.com/smart-data-models/dataModel.PointOfInterest/tree/master/PointOfInterest). 
 A [Swagger Specification](https://petstore.swagger.io/?url=https://smart-data-models.github.io/dataModel.PointOfInterest/PointOfInterest/swagger.yaml)
-of the same model is also available, and would be use to generate code stubs in a full application.
+of the same model is also available, and would be used to generate code stubs in a full application.
 
 ### Checking the service health
 
@@ -262,8 +262,8 @@ work with the requests defined below.
 
 ## Working with multilanguage properties
 
-Sometimes, it is required the use of different language in the creation and consumption of Entity data. In order to 
-proceed, we need to create initially a new entity data that define the new data type `LanguageProperty` and use the 
+Sometimes, it is required to use a different language in the creation and consumption of Entity data. In order to 
+proceed, we need to create initially a new entity data that defines the new data type `LanguageProperty` and use the 
 sub-attribute `LanguageMap` (and not value) to keep the representation of the values of this attribute in different 
 languages. 
 
@@ -272,9 +272,9 @@ strings representing [IETF RFC 5646](https://www.rfc-editor.org/info/rfc5646) la
 
 ### Creating a new data entity
 
-Let's create a Poit of Interest data in which we want to keep the detail information about the Helsinki Cathedral, gut
-for the value of the name, we use three different languages, English, Finnish, and Italian. The process will be to send 
-a request to the Broker with the following information:
+Let's create a Point of Interest data in which we want to keep the detailed information about the Helsinki Cathedral, 
+but for the value of the name, we use three different languages, English, Finnish, and Italian. The process will be to 
+send a request to the Broker with the following information:
 
 #### :two: Request:
 
@@ -322,10 +322,11 @@ Location: /ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456
 Content-Length: 0
 ```
 
-### Reading multilingual data in normalized format
+### Reading multilingual data in normalised format
 
-Imaging that we want to get details of a specific entity (`urn:ngsi-ld:PointOfInterest:poi123456`) in normalized format
-and without any reference to the language that we want to obtain the data. We should execute the following command:
+Imagining that we want to get details of a specific entity (`urn:ngsi-ld:PointOfInterest:poi123456`) in normalised 
+format and without any reference to the language that we want to obtain the data. We should execute the following 
+command:
 
 #### :three: Request:
 
@@ -353,7 +354,7 @@ And the response that we obtain include all the string values defined for the di
 }
 ```
 
-On the other side, if we decided to specify that we wanted to receive the value (or values) but only in *Italian* 
+On the other hand, if we decided to specify that we wanted to receive the value (or values) but only in *Italian* 
 language, we should specify the corresponding query parameter `lang` equal to `it`.
 
 #### :four: Request:
@@ -475,7 +476,7 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=na
 ]
 ```
 
-Now, I wanted to receive the response but corresponding to the *Finish* language:
+Now, I wanted to receive the response but corresponding to the *Finnish* language:
 
 #### :eight: Request:
 
