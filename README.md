@@ -280,34 +280,43 @@ send a request to the Broker with the following information:
 
 ```console
 curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
-  -H 'Content-Type: application/ld+json' \
-  -d '{
-  "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-  "type": "PointOfInterest",
-  
-  "category": {
-      "type": "Property",
-      "value": ["107"]
-  },
-
-  "location": {
-      "type": "GeoProperty",
-      "value": {
-          "type": "Point",
-          "coordinates": [60.17021,24.95212]
-      }
-  },
-
-  "name": {
-      "type": "LanguageProperty",
-      "languageMap": {
-          "fi": "Helsingin tuomiokirkko",
-          "en": "Helsinki Cathedral",
-          "it": "Duomo di Helsinki"
-     }
-  },
-  
-  "@context": "http://context/ngsi-context.jsonld"
+-H 'Content-Type: application/ld+json' \
+--data-raw '{
+    "id": "urn:ngsi-ld:Building:farm001",
+    "type": "Building",
+    "category": {
+        "type": "VocabularyProperty",
+        "vocab": ["farm"]
+    },
+    "address": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "Großer Stern 1",
+            "addressRegion": "Berlin",
+            "addressLocality": "Tiergarten",
+            "postalCode": "10557"
+        },
+        "verified": {
+            "type": "Property",
+            "value": true
+        }
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+             "type": "Point",
+             "coordinates": [13.3505, 52.5144]
+        }
+    },
+    "name": {
+        "type": "LanguageProperty",
+        "languageMap": {
+          "en": "Victory Farm",
+          "de": "Bauernhof von Sieg",
+          "ja": "ビクトリーファーム"
+        }
+    },
+    "@context": "http://context/ngsi-context.jsonld"
 }'
 ```
 
@@ -322,6 +331,54 @@ Location: /ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456
 Content-Length: 0
 ```
 
+
+#### 3️⃣ Request:
+
+Each subsequent entity must have a unique `id` for the given `type`
+
+```console
+curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
+  -H 'Content-Type: application/json' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d '{
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "Building",
+    "category": {
+        "type": "VocabProperty",
+        "vocab": ["barn"]
+    },
+    "address": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "Straße des 17. Juni",
+            "addressRegion": "Berlin",
+            "addressLocality": "Tiergarten",
+            "postalCode": "10557"
+        },
+        "verified": {
+            "type": "Property",
+            "value": true
+        }
+    },
+     "location": {
+        "type": "GeoProperty",
+        "value": {
+             "type": "Point",
+              "coordinates": [13.3698, 52.5163]
+        }
+    },
+    "name": {
+        "type": "LanguageProperty",
+        "languageMap": {
+          "en": "Big Red Barn",
+          "de": "Große Rote Scheune",
+          "ja": "大きな赤い納屋"
+        }
+    }
+}'
+```
+
+
 ### Reading multilingual data in normalised format
 
 Imagining that we want to get details of a specific entity (`urn:ngsi-ld:PointOfInterest:poi123456`) in normalised 
@@ -331,37 +388,37 @@ command:
 #### :three: Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
+curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 And the response that we obtain include all the string values defined for the different languages:
 
 #### Response:
 
-```jsonld
+```json
 {
-  "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-  "type": "PointOfInterest",
+  "id": "urn:ngsi-ld:Building:farm001",
+  "type": "Building",
   "name": {
     "type": "LanguageProperty",
     "languageMap": {
-      "fi": "Helsingin tuomiokirkko",
-      "en": "Helsinki Cathedral",
-      "it": "Duomo di Helsinki"
+      "en": "Victory Farm",
+      "de": "Bauernhof von Sieg",
+      "ja": "ビクトリーファーム"
     }
   }
 }
 ```
 
-On the other hand, if we decided to specify that we wanted to receive the value (or values) but only in *Italian* 
-language, we should specify the corresponding query parameter `lang` equal to `it`.
+On the other hand, if we decided to specify that we wanted to receive the value (or values) but only in *German*
+language, we should specify the corresponding query parameter `lang` equal to `de`.
 
 #### :four: Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name&lang=it' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
+curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name&lang=de' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 In this case, the response provides a new sub-attribute `lang` with the details of the language that was selected 
@@ -371,14 +428,14 @@ sub-attribute.
 
 #### Response:
 
-```jsonld
+```json
 {
-  "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-  "type": "PointOfInterest",
+  "id": "urn:ngsi-ld:Building:farm001",
+  "type": "Building",
   "name": {
     "type": "Property",
-    "lang": "it",
-    "value": "Duomo di Helsinki"
+    "lang": "de",
+    "value": "Bauernhof von Sieg"
   }
 }
 ```
@@ -391,21 +448,20 @@ equal to `keyValues`:
 #### :five: Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name&options=keyValues' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
+curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name&options=keyValues' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
 
-```jsonld
+```json
 {
-  "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-  "type": "PointOfInterest",
+  "id": "urn:ngsi-ld:Building:farm001",
   "name": {
     "languageMap": {
-      "fi": "Helsingin tuomiokirkko",
-      "en": "Helsinki Cathedral",
-      "it": "Duomo di Helsinki"
+      "en": "Victory Farm",
+      "de": "Bauernhof von Sieg",
+      "ja": "ビクトリーファーム"
     }
   }
 }
@@ -416,17 +472,16 @@ and if we wanted to get only the corresponding value of the `name` in *English* 
 #### :six: Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456?attrs=name&options=keyValues&lang=en' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
+curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name&options=keyValues&lang=en' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
 
-```jsonld
+```json
 {
-  "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-  "type": "PointOfInterest",
-  "name": "Helsinki Cathedral"
+  "id": "urn:ngsi-ld:Building:farm001",
+  "name": "Victory Farm"
 }
 ```
 
@@ -439,13 +494,13 @@ obtain the PointOfInterest whose name is equal to `Helsinki Cathedral` in Englis
 #### :seven: Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=name\[it\]=="Duomo+di+Helsinki"' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
+curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=Building&q=name\[de\]=="Bauernhof+von+Sieg"' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
 
-```jsonld
+```json
 [
   {
     "id": "urn:ngsi-ld:PointOfInterest:poi123456",
@@ -482,12 +537,12 @@ Now, I wanted to receive the response but corresponding to the *Finnish* languag
 
 ```console
 curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=name\[it\]=="Duomo+di+Helsinki"&lang=fi' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' | jq .
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
 
-```jsonld
+```json
 [
   {
     "id": "urn:ngsi-ld:PointOfInterest:poi123456",
@@ -549,7 +604,7 @@ which correspond to the short names provided in the alternate context. Note that
 `value`, etc.) cannot be overridden directly but would require an additional **JSON-LD** expansion/compaction operation 
 (programmatically).
 
-```jsonld
+```json
 [
   {
     "@context": "http://context/alternate-context-it.jsonld",
@@ -591,7 +646,7 @@ curl -G -X GET \
 
 The response is returned in JSON-LD format with short form attribute names (`luokka`, `nimi`, `KiinnostuksenKohde`).
 
-```jsonld
+```json
 [
   {
     "@context": "http://context/alternate-context-fi.jsonld",
