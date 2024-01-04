@@ -2,10 +2,13 @@
 [<img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"  align="left" />](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.07.01_60/gs_cim009v010701p.pdf)
 [<img src="https://fiware.github.io/tutorials.Getting-Started/img/Fiware.png" align="left" width="162">](https://www.fiware.org/)<br/>
 
+[![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
 [![License: MIT](https://img.shields.io/github/license/FIWARE/tutorials.Getting-Started.svg)](https://opensource.org/licenses/MIT)
+[![Support badge](https://img.shields.io/badge/tag-fiware-orange.svg?logo=stackoverflow)](https://stackoverflow.com/questions/tagged/fiware)
 [![JSON LD](https://img.shields.io/badge/JSON--LD-1.1-f06f38.svg)](https://w3c.github.io/json-ld-syntax/) <br/>
+[![Documentation](https://img.shields.io/readthedocs/ngsi-ld-tutorials.svg)](https://ngsi-ld-tutorials.rtfd.io)
 
-This tutorial examines the management multilingual capabilities inside the ETSI NGSI-LD API. The tutorial uses 
+This tutorial examines the keyword syntax tokens of JSON-LD and introduces custom property types which extend NGSI-LD properties to cover multilingual capabilities and preferred enumeration names using the data from the [Smart Farm example](https://github.com/FIWARE/tutorials.Getting-Started/tree/NGSI-LD). The tutorial uses
 [cUrl](https://ec.haxx.se/) commands throughout.
 
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/217860-3b538d21-0f19-4c63-a9d6-e184ef829ca7?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D217860-3b538d21-0f19-4c63-a9d6-e184ef829ca7%26entityType%3Dcollection%26workspaceId%3Db6e7fcf4-ff0c-47cb-ada4-e222ddeee5ac)
@@ -34,6 +37,70 @@ This tutorial examines the management multilingual capabilities inside the ETSI 
 -   [License](#license)
 
 </details>
+
+# Understanding JSON-LD `@keywords`
+
+The [JSON-LD syntax](https://www.w3.org/TR/json-ld/#syntax-tokens-and-keywords) defines a series of keywords to describe the structure of the JSON displayed. Since **NGSI-LD** is just a formally structured _extended subset_ of **JSON-LD**, **NGSI-LD** should be
+directly or indirectly capable of offering an equivalent for all the functions defined by JSON-LD.
+
+As an example, JSON-LD defines `@id` to indicate the unique identifier of an Entity, and `@type` to define the type of an Entity.
+The NGSI-LD core `@context` further refines this, so that `id`/`@id` and `type`/`@type` are considered as interchangable.
+
+Both of the following syntaxes are acceptable in NGSI-LD:
+
+```json
+{
+  "id": "urn:ngsi-ld:Building:farm001",
+  "type": "Building",
+  "@context" : "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+}
+```
+
+
+```json
+{
+  "@id": "urn:ngsi-ld:Building:farm001",
+  "@type": "Building",
+  "@context" : "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+}
+```
+
+
+Among the keywords defined in JSON-LD, the following terms are used or mapped within the NGSI-LD core `@context` to maintain their meaning when data is supplied.
+
+- `@list` - Used to express an ordered set of data.
+- `@json` - Used in association with unexpandable JSON objects
+- `@language` - Used to specify the language for a particular string value.
+- `@none` - Used as a default index value when an attribute does not have the feature being indexed.
+- `@value` - Used to specify the data that is associated with a particular property
+- `@vocab` - Used to expand properties and values
+
+Certain other keywords such as `@graph`, which describe statements about relationships are accepted in NGSI-LD, but are never processed directly by NGSI-LD Context brokers
+
+For example. Looking at the core `@context`, the GeoProperty attribute
+`coordinates` is fully defined as:
+
+```json
+"coordinates": {
+  "@container": "@list",
+  "@id": "geojson:coordinates"
+}
+```
+
+This ensure that the ordering of the values in its array (longitude, latitude) is always maintained.
+
+All ordinary NGSI-LD **Properties** (and **GeoProperties**) have a `value`, which is the equivalent of a JSON-LD `@value` - this mean that the `value` of a Property is just the data that is associated with a particular property.
+
+However, there are recent updates to the NGSI-LD specification which have introduced various extensions or sub-classes to this principle, allowing the creation of NGSI-LD properties which directly conform to
+JSON-LD keywords other than `@value`.
+
+- An NGSI-LD **LanguageProperty** holds a set of internationalized strings and is defined using the JSON-LD `@language` keyword.
+- An NGSI-LD **VocabularyProperty**  holds is a mapping of a URI to a value within the user'`@context` and is defined using the JSON-LD `@vocab` keyword.
+
+In each case, the resultant payload will be altered according to the standard JSON-LD definitions, so the output NGSI-LD remains fully valid JSON-LD.
+
+
+## Entities within a Farm Management Information System (FMIS)
 
 ## NGSI-LD Rules
 
@@ -112,9 +179,9 @@ on the network. In our case the tutorial application will be used to host a seri
 
 Therefore, the architecture will consist of three elements:
 
--   The [OrionLD Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using
+-   The [Scorpio Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using
     [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
--   The underlying [MongoDB](https://www.mongodb.com/) database:
+-   The underlying [Postgres](https://www.mongodb.com/) database:
     -   Used by the OrionLD Context Broker to hold context data information such as data entities, subscriptions and
         registrations.
 -   An HTTP **Web-Server** which offers static `@context` files defining the context entities within the system.
@@ -122,7 +189,7 @@ Therefore, the architecture will consist of three elements:
 Since all interactions between the three elements are initiated by HTTP requests, the elements can be containerized and
 run from exposed ports.
 
-The necessary configuration information can be seen in the services section of the associated `orion-ld.yml` file:
+The necessary configuration information can be seen in the services section of the associated `scorpio.yml` file:
 
 ```yaml
 orionld:
@@ -223,42 +290,11 @@ Three `@context` files have been generated and hosted on the tutorial applicatio
     application used different short names for attributes depending on the language. Their `@context` file reflects 
     the agreed mapping between attribute names.
 
-The full data model description for a **PointOfInterest** entity as used in this tutorial is based on the standard 
-[Smart Data Models definition](https://github.com/smart-data-models/dataModel.PointOfInterest/tree/master/PointOfInterest). 
-A [Swagger Specification](https://petstore.swagger.io/?url=https://smart-data-models.github.io/dataModel.PointOfInterest/PointOfInterest/swagger.yaml)
+The full data model description for a **Building** entity as used in this tutorial is based on the standard
+[Smart Data Models definition](https://github.com/smart-data-models/dataModel.Building/tree/master/Building).
+A [Swagger Specification](https://petstore.swagger.io/?url=https://smart-data-models.github.io/dataModel.Building/Building/swagger.yaml)
 of the same model is also available, and would be used to generate code stubs in a full application.
 
-### Checking the service health
-
-You can check if the OrionLD Context Broker is running by making an HTTP request to the exposed port:
-
-#### :one: Request:
-
-```console
-curl -X GET \
-  'http://localhost:1026/version'
-```
-
-#### Response:
-
-The response will look similar to the following:
-
-```json
-{
-  "orionld version": "1.4.0",
-  "orion version":   "1.15.0-next",
-  "uptime":          "0 d, 0 h, 49 m, 50 s",
-  "git_hash":        "746e13b343987d846b3451fe1f943600c4b2abe9",
-  "compile_time":    "Sat Aug 26 06:19:10 UTC 2023",
-  "compiled_by":     "root",
-  "compiled_in":     "",
-  "release_date":    "Sat Aug 26 06:19:10 UTC 2023",
-  "doc":             "https://fiware-orion.readthedocs.org/en/master/"
-}
-```
-
-The format of the version response has not changed. The `release_date` must be 26th August 2023 or later to be able to
-work with the requests defined below.
 
 ## Working with multilanguage properties
 
@@ -327,7 +363,7 @@ The response that we obtain will be something similar (except the `Date` value) 
 ```console
 HTTP/1.1 201 Created
 Date: Sat, 16 Dec 2023 08:39:32 GMT
-Location: /ngsi-ld/v1/entities/urn:ngsi-ld:PointOfInterest:poi123456
+Location: /ngsi-ld/v1/entities/urn:ngsi-ld:Building:poi123456
 Content-Length: 0
 ```
 
@@ -381,7 +417,7 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
 
 ### Reading multilingual data in normalised format
 
-Imagining that we want to get details of a specific entity (`urn:ngsi-ld:PointOfInterest:poi123456`) in normalised 
+Imagining that we want to get details of a specific entity (`urn:ngsi-ld:Building:poi123456`) in normalised
 format and without any reference to the language that we want to obtain the data. We should execute the following 
 command:
 
@@ -422,7 +458,7 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm
 ```
 
 In this case, the response provides a new sub-attribute `lang` with the details of the language that was selected 
-together with the sub-attribute `value` with the content of the string in the corresponding *Italian* language. It is 
+together with the sub-attribute `value` with the content of the string in the corresponding *German* language. It is
 important to notice that in this response the value of `type` is *Property* and there is no `LanguageMap` but `value` 
 sub-attribute.
 
@@ -489,13 +525,14 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm
 ### Querying for Multilingual Data
 
 Use the standard Object attribute bracket `[ ]` notation when querying `LanguageProperties`. For example, if we want to
-obtain the PointOfInterest whose name is equal to `Helsinki Cathedral` in English.
+obtain the Building whose name is equal to `Big Red Barn` in English.
 
 #### :seven: Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=Building&q=name\[de\]=="Bauernhof+von+Sieg"' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Building&attrs=name&q=name[en]%3D%3D%22Big%20Red%20Barn%22' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Accept: application/ld+json'
 ```
 
 #### Response:
@@ -503,69 +540,53 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=Building&q=name\[de\
 ```json
 [
   {
-    "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-    "type": "PointOfInterest",
-    "category": {
-      "type": "Property",
-      "value": "107"
-    },
-    "location": {
-      "type": "GeoProperty",
-      "value": {
-        "type": "Point",
-        "coordinates": [
-          60.17021,
-          24.95212
-        ]
+    "id" : "urn:ngsi-ld:Building:barn002",
+    "type" : "Building",
+    "name" : {
+      "type" : "LanguageProperty",
+      "languageMap" : {
+        "en" : "Big Red Barn",
+        "de" : "Große Rote Scheune",
+        "ja" : "大きな赤い納屋"
       }
     },
-    "name": {
-      "type": "LanguageProperty",
-      "languageMap": {
-        "fi": "Helsingin tuomiokirkko",
-        "en": "Helsinki Cathedral",
-        "it": "Duomo di Helsinki"
-      }
-    }
+    "@context" : [ "http://context/ngsi-context.jsonld", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld" ]
   }
 ]
 ```
 
-Now, I wanted to receive the response but corresponding to the *Finnish* language:
+Now, I wanted to receive the response but corresponding to `Große Rote Scheune` in *Any* language:
 
 #### :eight: Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities?type=PointOfInterest&q=name\[it\]=="Duomo+di+Helsinki"&lang=fi' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Building&attrs=name&q=name[*]%3D%3D%22Gro%C3%9Fe%20Rote%20Scheune%22' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Accept: application/ld+json'
 ```
 
+
 #### Response:
+
+Using the Asterisk Syntax `*` checks for all available languages.
 
 ```json
 [
   {
-    "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-    "type": "PointOfInterest",
-    "category": {
-      "type": "Property",
-      "value": "107"
-    },
-    "location": {
-      "type": "GeoProperty",
-      "value": {
-        "type": "Point",
-        "coordinates": [
-          60.17021,
-          24.95212
-        ]
-      }
-    },
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "Building",
     "name": {
-      "type": "Property",
-      "lang": "fi",
-      "value": "Helsingin tuomiokirkko"
-    }
+        "type": "LanguageProperty",
+        "languageMap": {
+            "en": "Big Red Barn",
+            "de": "Große Rote Scheune",
+            "ja": "大きな赤い納屋"
+        }
+    },
+    "@context": [
+        "http://context/ngsi-context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
   }
 ]
 ```
@@ -577,29 +598,26 @@ data_ using a different set of short names, in different languages.
 
 The `alternate-context-fi.jsonld` maps the names of various attributes to their equivalents in Finnish. The
 `alternate-context-it.jsonld` provides their equivalent in Italian. If it is supplied in the request, a query can be 
-made using alternate short names (e.g., `type=PointOfInterest` becomes `type=PuntoDiInteresse` or 
+made using alternate short names (e.g., `type=Building` becomes `type=PuntoDiInteresse` or
 `type=KiinnostuksenKohde`).
 
-There is a limitation in this mapping, it is not possible to change the core context attribute names, like _id_, _type_,
-or _context_ for example.
+There is a limitation in this mapping, it is not possible to change the core context attribute names, like `id`, `type`,
+or `@context` for example.
 
-Let's try to recover the information about the point of interest using the alternate context file for the *Italian* 
+Let's try to recover the information about the farm using the alternate context file for the *German*
 language.
 
 #### :nine: Request:
 
 ```console
-curl -G -X GET \
-    'http://localhost:1026/ngsi-ld/v1/entities' \
--H 'Link: <http://context/alternate-context-it.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Accept: application/ld+json' \
-    -d 'type=PuntoDiInteresse' \
-    -d 'options=keyValues'
+curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Geb%C3%A4ude&q=name[*]%3D%3D%22Gro%C3%9Fe%20Rote%20Scheune%22&lang=en&attrs=name%2Ckategorie' \
+  -H 'Link: <http://context/alternate-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Accept: application/ld+json'
 ```
 
 #### Response:
 
-The response is returned in JSON-LD format with short form attribute names (`categoria`, `nome`, `PuntoDiInteresse`) 
+The response is returned in JSON-LD format with short form attribute names (`kategorie`, `name`, `PuntoDiInteresse`)
 which correspond to the short names provided in the alternate context. Note that core context terms (`id`, `type`, 
 `value`, etc.) cannot be overridden directly but would require an additional **JSON-LD** expansion/compaction operation 
 (programmatically).
@@ -607,24 +625,24 @@ which correspond to the short names provided in the alternate context. Note that
 ```json
 [
   {
-    "@context": "http://context/alternate-context-it.jsonld",
-    "id": "urn:ngsi-ld:PointOfInterest:poi123456",
-    "type": "PuntoDiInteresse",
-    "categoria": "107",
-    "location": {
-      "type": "Point",
-      "coordinates": [
-        60.17021,
-        24.95212
-      ]
-    },
-    "nome": {
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "Gebäude",
+    "name": {
+      "type": "LanguageProperty",
       "languageMap": {
-        "fi": "Helsingin tuomiokirkko",
-        "en": "Helsinki Cathedral",
-        "it": "Duomo di Helsinki"
+          "en": "Big Red Barn",
+          "de": "Große Rote Scheune",
+          "ja": "大きな赤い納屋"
       }
-    }
+    },
+    "kategorie": {
+      "type": "VocabularyProperty",
+      "vocab": "scheune"
+    },
+    "@context": [
+        "http://context/alternate-context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
   }
 ]
 ```
@@ -634,12 +652,9 @@ If we change the context to a *Finnish* language:
 #### :ten: Request:
 
 ```console
-curl -G -X GET \
-    'http://localhost:1026/ngsi-ld/v1/entities' \
--H 'Link: <http://context/alternate-context-fi.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Accept: application/ld+json' \
-    -d 'type=KiinnostuksenKohde' \
-    -d 'options=keyValues'
+curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Geb%C3%A4ude&q=kategorie%3D%3Dbauernhof&attrs=name%2Ckategorie' \
+-H 'Link: <http://context/alternate-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Accept: application/ld+json'
 ```
 
 #### Response:
@@ -650,7 +665,7 @@ The response is returned in JSON-LD format with short form attribute names (`luo
 [
   {
     "@context": "http://context/alternate-context-fi.jsonld",
-    "id": "urn:ngsi-ld:PointOfInterest:poi123456",
+    "id": "urn:ngsi-ld:Building:poi123456",
     "type": "KiinnostuksenKohde",
     "luokka": "107",
     "location": {
