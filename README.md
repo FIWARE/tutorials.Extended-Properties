@@ -1,4 +1,4 @@
-# Multilingual tutorial
+# NGSI-LD Property subclasses
 [<img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"  align="left" />](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.07.01_60/gs_cim009v010701p.pdf)
 [<img src="https://fiware.github.io/tutorials.Getting-Started/img/Fiware.png" align="left" width="162">](https://www.fiware.org/)<br/>
 
@@ -8,7 +8,7 @@
 [![JSON LD](https://img.shields.io/badge/JSON--LD-1.1-f06f38.svg)](https://w3c.github.io/json-ld-syntax/) <br/>
 [![Documentation](https://img.shields.io/readthedocs/ngsi-ld-tutorials.svg)](https://ngsi-ld-tutorials.rtfd.io)
 
-This tutorial examines the keyword syntax tokens of JSON-LD and introduces custom property types which extend NGSI-LD properties to cover multilingual capabilities and preferred enumeration names using the data from the [Smart Farm example](https://github.com/FIWARE/tutorials.Getting-Started/tree/NGSI-LD). The tutorial uses
+This tutorial examines the keyword syntax tokens of JSON-LD and introduces custom property types which extend NGSI-LD properties to cover multilingual capabilities and preferred enumeration names reusing the data from the [Smart Farm example](https://github.com/FIWARE/tutorials.Getting-Started/tree/NGSI-LD). The tutorial uses
 [cUrl](https://ec.haxx.se/) commands throughout.
 
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/217860-3b538d21-0f19-4c63-a9d6-e184ef829ca7?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D217860-3b538d21-0f19-4c63-a9d6-e184ef829ca7%26entityType%3Dcollection%26workspaceId%3Db6e7fcf4-ff0c-47cb-ada4-e222ddeee5ac)
