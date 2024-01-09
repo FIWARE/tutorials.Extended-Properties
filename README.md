@@ -1,4 +1,5 @@
 # NGSI-LD Property subclasses
+
 [<img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"  align="left" />](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.07.01_60/gs_cim009v010701p.pdf)
 [<img src="https://fiware.github.io/tutorials.Getting-Started/img/Fiware.png" align="left" width="162">](https://www.fiware.org/)<br/>
 
@@ -19,22 +20,22 @@ This tutorial examines the keyword syntax tokens of JSON-LD and introduces custo
 <details>
 <summary><strong>Details</strong></summary>
 
--   [NGSI-LD Rules](#ngsi-ld-rules)
--   [Prerequisites](#prerequisites)
-  -   [Docker Engine](#docker-engine-img-srchttpswwwdockercomfaviconico-alignleft--height30-width30-styleborder-right-stylesolid-border-right-width10px-border-colortransparent-background-transparent)
-  -   [jq](#jq-img-srchttpsjqlanggithubiojqjqpng-alignleft--height19-width50-styleborder-right-stylesolid-border-right-width10px-border-colortransparent-background-transparent)
-  -   [Postman](#postman-img-srchttpswwwpostmancom_ar-assetsimagesfavicon-1-48png-alignleft--height25-width35-styleborder-right-stylesolid-border-right-width10px-border-colortransparent-background-transparent)
-  -   [GitPod](#gitpod-img-srchttpsgitpodiofaviconico-alignleft--height30-width30)
--   [Architecture](#architecture)
-  -   [Start Up](#start-up)
-  -   [Checking the system](#checking-the-system)
--   [Working with multilanguage properties](#working-with-multilanguage-properties)
-  -   [Creating a new data entity](#creating-a-new-data-entity)
-  -   [Reading multilingual data in normalized format](#reading-multilingual-data-in-normalized-format)
-  -   [Reading multilingual data in key-value format](#reading-multilingual-data-in-key-value-format)
-  -   [Querying for Multilingual Data](#querying-for-multilingual-data)
--   [Using an alternative `@context`](#using-an-alternative-context)
--   [License](#license)
+- [NGSI-LD Property subclasses](#ngsi-ld-property-subclasses)
+  - [Contents](#contents)
+- [Understanding JSON-LD `@keywords`](#understanding-json-ld-keywords)
+  - [Entities within a Farm Management Information System (FMIS)](#entities-within-a-farm-management-information-system-fmis)
+  - [Architecture](#architecture)
+  - [Prerequisites](#prerequisites)
+    - [Docker Engine](#docker-engine-)
+    - [Start Up](#start-up)
+    - [Reading `@context` files](#reading-context-files)
+  - [Working with multilanguage properties](#working-with-multilanguage-properties)
+    - [Creating a new data entity](#creating-a-new-data-entity)
+    - [Reading multilingual data in normalised format](#reading-multilingual-data-in-normalised-format)
+    - [Reading multilingual data in simplified format](#reading-multilingual-data-in-simplified-format)
+    - [Fallbacks when requesting data for an unsupported Language](#fallbacks-when-requesting-data-for-an-unsupported-language)
+    - [Querying for Multilingual Data](#querying-for-multilingual-data)
+  - [Using an alternative `@context`](#using-an-alternative-context)
 
 </details>
 
@@ -52,19 +53,17 @@ Both of the following syntaxes (with and without `@`) are acceptable in NGSI-LD:
 {
   "id": "urn:ngsi-ld:Building:farm001",
   "type": "Building",
-  "@context" : "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+  "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
 }
 ```
-
 
 ```json
 {
   "@id": "urn:ngsi-ld:Building:farm001",
   "@type": "Building",
-  "@context" : "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+  "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
 }
 ```
-
 
 Among the keywords defined in JSON-LD, the following terms are used or mapped within the NGSI-LD core `@context` to maintain their meaning when JSON-LD data is supplied.
 
@@ -95,7 +94,7 @@ However, there are recent updates to the NGSI-LD specification which have introd
 JSON-LD keywords other than `@value`.
 
 - An NGSI-LD **LanguageProperty** holds a set of internationalized strings and is defined using the JSON-LD `@language` keyword.
-- An NGSI-LD **VocabularyProperty**  holds is a mapping of a URI to a value within the user'`@context` and is defined using the JSON-LD `@vocab` keyword.
+- An NGSI-LD **VocabularyProperty** holds is a mapping of a URI to a value within the user'`@context` and is defined using the JSON-LD `@vocab` keyword.
 
 In each case, the meaning of the resultant payload will be altered according to the standard JSON-LD definitions, so the output NGSI-LD remains fully valid JSON-LD.
 
@@ -103,34 +102,33 @@ In each case, the meaning of the resultant payload will be altered according to 
 
 To illustrate some extended NGSI-LD properties within an FMIS system based on NGSI-LD, we will alter the previously defined **Building** Entity type. As a reminder this has been defined as follows
 
--   A building, such as a barn, is a real world bricks and mortar construct. **Building** entities would have properties
-    such as:
-    -   A name of the building e.g. "The Big Red Barn"
-    -   The category of the building (e.g. "barn")
-    -   An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
-    -   A physical location e.g. _52.5075 N, 13.3903 E_
-    -   A filling level - the degree to which the building is full.
-    -   A temperature - e.g. _21 °C_
-    -   An association to the owner of the building (a real person)
-    -   ...etc.
+- A building, such as a barn, is a real world bricks and mortar construct. **Building** entities would have properties
+  such as:
+  - A name of the building e.g. "The Big Red Barn"
+  - The category of the building (e.g. "barn")
+  - An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
+  - A physical location e.g. _52.5075 N, 13.3903 E_
+  - A filling level - the degree to which the building is full.
+  - A temperature - e.g. _21 °C_
+  - An association to the owner of the building (a real person)
+  - ...etc.
 
 Taking the first attribute, the Property `name` could be localized into multiple languages, for example:
-  -  **Big Red Barn**  in English
-  -  **Große Rote Scheune** in German
-  -  **大きな赤い納屋** in Japanese
+
+- **Big Red Barn** in English
+- **Große Rote Scheune** in German
+- **大きな赤い納屋** in Japanese
 
 Similarly, even if all participants in a data space can agree for a common URI for the definition of the enumerations of all the different building types within `category`, internally within their own systems, they may be requied to display these enumerations with their own localised values.
 
-
 For example if the FMIS follows the URIs defined by openstreetmap.org. A building designated as A _"barn"_ would actually be be defined by the URI: `https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn`. A JSON-LD `@context` could be used to shorten this as required.
-
 
 If a user wanted the `category` defined as `"barn"` internally within their system, the following JSON-LD `@context` could be used:
 
 ```json
 {
   "@context": {
-    "barn": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn",
+    "barn": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn"
   }
 }
 ```
@@ -140,18 +138,16 @@ If a user wanted the `category` defined as `"scheune"` internally within their s
 ```json
 {
   "@context": {
-    "scheune": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn",
+    "scheune": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn"
   }
 }
 ```
 
-
 The definition and redefinition of enumerations is not necessarily just a language localisation issue. It is possible that an FMIS may wish to use a separate code
 list of values for
 regulatory reasons. For example, the names of ingredients within a pesticide,
-could be regulated by law and the required name could differ based on the market in which the product is sold (e.g. `Water`, `H2O`, `Hydrogen Hydroxide`, `Oxygen Dihydride`,
- `Hydric Acid`)
-
+could be regulated by law and the required name could differ based on the market in which the product is sold (e.g. `Water`, `H₂O`, `Hydrogen Hydroxide`, `Oxygen Dihydride`,
+`Hydric Acid`)
 
 ## Architecture
 
@@ -173,12 +169,12 @@ on the network. In our case the tutorial application will be used to host a seri
 
 Therefore, the architecture will consist of three elements:
 
--   The [Scorpio Context Broker](https://scorpio.readthedocs.io/) which will receive requests using
-    [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
--   The underlying [Postgres](https://www.postgresql.org/) database:
-    -   Used by the Scorpio Context Broker to hold context data information such as data entities, subscriptions and
-        registrations.
--   An HTTP **Web-Server** which offers static `@context` files defining the context entities within the system.
+- The [Scorpio Context Broker](https://scorpio.readthedocs.io/) which will receive requests using
+  [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
+- The underlying [Postgres](https://www.postgresql.org/) database:
+  - Used by the Scorpio Context Broker to hold context data information such as data entities, subscriptions and
+    registrations.
+- An HTTP **Web-Server** which offers static `@context` files defining the context entities within the system.
 
 Since all interactions between the three elements are initiated by HTTP requests, the elements can be containerized and
 run from exposed ports.
@@ -186,62 +182,60 @@ run from exposed ports.
 The necessary configuration information can be seen in the services section of the associated `scorpio.yml` file:
 
 ```yaml
-  scorpio:
-    labels:
-      org.fiware: 'tutorial'
-    image: quay.io/fiware/scorpio:java-${SCORPIO_VERSION}
-    hostname: scorpio
-    container_name: fiware-scorpio
-    networks:
-      - default
-    ports:
-      - "1026:9090"
-    depends_on:
-      - postgres
-
+scorpio:
+  labels:
+    org.fiware: "tutorial"
+  image: quay.io/fiware/scorpio:java-${SCORPIO_VERSION}
+  hostname: scorpio
+  container_name: fiware-scorpio
+  networks:
+    - default
+  ports:
+    - "1026:9090"
+  depends_on:
+    - postgres
 ```
 
 ```yaml
-  postgres:
-    labels:
-      org.fiware: 'tutorial'
-    image: postgis/postgis
-    hostname: postgres
-    container_name: db-postgres
-    networks:
-      - default
-    ports:
-      - "5432"
-    environment:
-      POSTGRES_USER: ngb
-      POSTGRES_PASSWORD: ngb
-      POSTGRES_DB: ngb
-    logging:
-      driver: none
-    volumes:
-      - postgres-db:/var/lib/postgresql/data
+postgres:
+  labels:
+    org.fiware: "tutorial"
+  image: postgis/postgis
+  hostname: postgres
+  container_name: db-postgres
+  networks:
+    - default
+  ports:
+    - "5432"
+  environment:
+    POSTGRES_USER: ngb
+    POSTGRES_PASSWORD: ngb
+    POSTGRES_DB: ngb
+  logging:
+    driver: none
+  volumes:
+    - postgres-db:/var/lib/postgresql/data
 ```
 
 ```yaml
 ld-context:
-    labels:
-      org.fiware: 'tutorial'
-    image: httpd:alpine
-    hostname: context
-    container_name: fiware-ld-context
-    ports:
-        - "3004:80"
-    volumes:
-        - data-models:/usr/local/apache2/htdocs/
-    healthcheck:
-      test: (wget --server-response --spider --quiet  http://ld-context/ngsi-context.jsonld 2>&1 | awk 'NR==1{print $$2}'|  grep -q -e "200") || exit 1
+  labels:
+    org.fiware: "tutorial"
+  image: httpd:alpine
+  hostname: context
+  container_name: fiware-ld-context
+  ports:
+    - "3004:80"
+  volumes:
+    - data-models:/usr/local/apache2/htdocs/
+  healthcheck:
+    test: (wget --server-response --spider --quiet  http://ld-context/ngsi-context.jsonld 2>&1 | awk 'NR==1{print $$2}'|  grep -q -e "200") || exit 1
 ```
 
 All containers reside on the same network - the Scorpop Context Broker is listening on Port `9090` internally and `1026` externally and PostGres is
 listening on the default port `5432` and the httpd web server is offering `@context` files on port `80`. All containers
 are also exposing ports externally - this is purely for the tutorial access - so that cUrl or Postman can access them
 without being part of the same network. The command-line initialization should be self-explanatory.
-
 
 ## Prerequisites
 
@@ -250,9 +244,9 @@ without being part of the same network. The command-line initialization should b
 To keep things simple all components will be run using [Docker](https://www.docker.com). **Docker** is a container
 technology which allows different components to be isolated into their respective environments.
 
--   To install Docker on Windows follow the instructions [here](https://docs.docker.com/docker-for-windows/)
--   To install Docker on Mac follow the instructions [here](https://docs.docker.com/docker-for-mac/)
--   To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)
+- To install Docker on Windows follow the instructions [here](https://docs.docker.com/docker-for-windows/)
+- To install Docker on Mac follow the instructions [here](https://docs.docker.com/docker-for-mac/)
+- To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)
 
 **Docker Compose** is a tool for defining and running multi-container Docker applications. A
 [YAML file](/docker-compose/orionld.yml) is used to configure the required services for the application. This means all
@@ -262,10 +256,9 @@ Compose V1 is discontinued, nevertheless Compose V2 has replaced it and is now i
 Desktop versions. Therefore, it is not needed to install the extension to the docker engine to execute the
 docker compose commands.
 
-
 ### Start Up
 
-All services can be initialised from the command-line by running the [services](/services) Bash script provided within 
+All services can be initialised from the command-line by running the [services](/services) Bash script provided within
 the repository. Please clone the repository and create the necessary images by running the commands as shown:
 
 ```bash
@@ -283,45 +276,39 @@ cd tutorials.Extended-Properties
 
 ---
 
-### Checking the system
-
-Once the services have started up, and before interacting with the context broker itself, it is useful to check that the
-necessary prerequisites are in place.
-
 ### Reading `@context` files
 
 Two `@context` files have been generated and hosted on the tutorial application. They would be used by different organizations within the data space, and internally they define the names of attributes and enumerations in different ways.
 
--   [`ngsi-context.jsonld`](http://localhost:3000/data-models/ngsi-context.jsonld) -The **NGSI-LD** `@context` serves to
-    define all attributes when sending data to the context broker or retrieving data. This
-    `@context` must be used for all **NGSI-LD** to **NGSI-LD** interactions.
+- [`ngsi-context.jsonld`](http://localhost:3000/data-models/ngsi-context.jsonld) -The **NGSI-LD** `@context` serves to
+  define all attributes when sending data to the context broker or retrieving data. This
+  `@context` must be used for all **NGSI-LD** to **NGSI-LD** interactions.
 
--   [`alternate-context.jsonld`](http://localhost:3000/data-models/alternate-context.jsonld) is an alternative
-    **JSON-LD** definition of the attributes of the data models used by a third-party. In this case we have a German speaking customer who wishes to have all attribute names and enumerations to be defined using terminology common in the German language. Effectively, internally within their their billing application a different set of short names for attributes is used. Their `@context` file reflects
-    the agreed mapping between attribute names.
+- [`alternate-context.jsonld`](http://localhost:3000/data-models/alternate-context.jsonld) is an alternative
+  **JSON-LD** definition of the attributes of the data models used by a third-party. In this case we have a German speaking customer who wishes to have all attribute names and enumerations to be defined using terminology common in the German language. Effectively, internally within their their billing application a different set of short names for attributes is used. Their `@context` file reflects
+  the agreed mapping between attribute names.
 
 The full data model description for a **Building** entity as used in this tutorial is based on the standard
 [Smart Data Models definition](https://github.com/smart-data-models/dataModel.Building/tree/master/Building).
 A [Swagger Specification](https://petstore.swagger.io/?url=https://smart-data-models.github.io/dataModel.Building/Building/swagger.yaml)
 of the same model is also available, and would be used to generate code stubs in a full application.
 
-
 ## Working with multilanguage properties
 
-Sometimes, it is required to  localize strings to offer variations for different languages in the creation and consumption of Entity data. In order to
-proceed, we need to create initially a new entity data that defines the new data type `LanguageProperty` and use the 
+Sometimes, it is required to localize strings to offer variations for different languages in the creation and consumption of Entity data. In order to
+proceed, we need to create initially a new entity data that defines the new data type `LanguageProperty` and use the
 sub-attribute `LanguageMap` (and not `value`) to keep the representation of the values of this attribute in different
-languages. 
+languages.
 
-This `LanguageMap` corresponds to a JSON object consisting of a series of key-value pairs where the keys shall be JSON 
+This `LanguageMap` corresponds to a JSON object consisting of a series of simplified pairs where the keys shall be JSON
 strings representing [IETF RFC 5646](https://www.rfc-editor.org/info/rfc5646) language codes.
 
 ### Creating a new data entity
 
-Let's create a farm **Building** entity in which we want to make the `name` available in three different languages, English, German, and Japanese. The process will be to
+Let's create a farm **Building** entity in which we want to make the `name` available in three different languages, _English_, _German_, and _Japanese_. The process will be to
 send a **POST** request to the Broker with the following information:
 
-#### :one: Request:
+#### 1️⃣ Request:
 
 ```console
 curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
@@ -365,7 +352,6 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
 }'
 ```
 
-
 #### Response:
 
 The response that we obtain will be something similar (except the `Date` value) to the following content:
@@ -377,10 +363,9 @@ Location: /ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001
 Content-Length: 0
 ```
 
+#### 2️⃣ Request:
 
-#### 3️⃣ Request:
-
-Each subsequent entity must have a unique `id` for the given `type`. Note that within a `languageMap`, the `@none` key-value pair indicates the default fallbakc value to be displayed  for unknown languages.
+Each subsequent entity must have a unique `id` for the given `type`. Note that within a `languageMap`, the `@none` simplified pair indicates the default fallback value to be displayed for unknown languages.
 
 ```console
 curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
@@ -425,18 +410,18 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
 }'
 ```
 
-
 ### Reading multilingual data in normalised format
 
-Imagining that we want to get details of a specific entity (`urn:ngsi-ld:Building:farm001`) in normalised
-format and without any reference to the language that we want to obtain the data. We should execute the following 
+Imagining that we want to get `name` of a specific entity (`urn:ngsi-ld:Building:farm001`) in normalised
+format and without any reference to the language that we want to obtain the data. We should execute the following
 command:
 
-#### :three: Request:
+#### 3️⃣ Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X  GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'attrs=name'
 ```
 
 And the response that we obtain the whole `languageMap` including all the string values defined for the different languages:
@@ -458,19 +443,21 @@ And the response that we obtain the whole `languageMap` including all the string
 }
 ```
 
-On the other hand, if we decided to specify that we wanted to receive the value (or values) but only in *German*
+On the other hand, if we decided to specify that we wanted to receive the value (or values) but only in _German_
 language, we should specify the corresponding query parameter `lang` equal to `de`.
 
-#### :four: Request:
+#### 4️⃣ Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name&lang=de' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
+  -d 'attrs=name' \
+  -d 'lang=de'
 ```
 
-In this case, the response provides a new sub-attribute `lang` with the details of the language that was selected 
-together with the sub-attribute `value` with the content of the string in the corresponding *German* language. It is
-important to notice that in this response the value of `type` is  now *Property* and there is no `LanguageMap` but `value`
+In this case, the response provides a new sub-attribute `lang` with the details of the language that was selected (`"lang": "de"`)
+together with the sub-attribute `value` with the content of the string in the corresponding _German_ language. It is
+important to notice that in this response the value of `type` is now _Property_ and there is no `LanguageMap` but `value`
 sub-attribute.
 
 #### Response:
@@ -487,23 +474,30 @@ sub-attribute.
 }
 ```
 
-### Reading multilingual data in key-value format
+### Reading multilingual data in simplified format
 
-If we wanted to get the response in key-value format, we need to send the corresponding request parameter `options` 
-equal to `keyValues`:
+If we wanted to get the response in simplified format, we need to send the corresponding request parameter `format`
+equal to `simplified`:
 
-#### :five: Request:
+#### 5️⃣ Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name&options=keyValues' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'attrs=name' \
+  -d 'format=simplified'
 ```
 
+Note that `format=simplified` could also be specified as `option=simplified` or using the alias `keyValues`.
+
 #### Response:
+
+The **Language Property** is returned within the `languageMap` attribute.
 
 ```json
 {
   "id": "urn:ngsi-ld:Building:farm001",
+  "type": "Building",
   "name": {
     "languageMap": {
       "en": "Victory Farm",
@@ -514,74 +508,127 @@ curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm
 }
 ```
 
-and if we wanted to get only the corresponding value of the `name` in *English* language:
+and if we wanted to get only the corresponding value of the `name` in **English** language,
+the `lang=en` parameter must be present in the request.
 
-#### :six: Request:
+#### 6️⃣ Request:
 
 ```console
-curl -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001?attrs=name&options=keyValues&lang=en' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'attrs=name' \
+  -d 'format=simplified' \
+  -d 'lang=en'
 ```
 
 #### Response:
+
+In this case, the **Language Property** is returned as an ordinary **Property** and only
+the value of the _English_ string is returned. Sub attributes are not returned in the simpliied format.
 
 ```json
 {
   "id": "urn:ngsi-ld:Building:farm001",
+  "type": "Building",
   "name": "Victory Farm"
 }
 ```
 
+### Fallbacks when requesting data for an unsupported Language
 
+Not all languages will necessarily be present within a `languageMap`. If an unsupported language (like _French_ `lang=fr`) is requested, the context broker will try its best to return
+some data in an alternate language instead. The preferred default is the `@none` language, but if this is not present, any other language can be returned.
+
+#### 7️⃣ Request:
+
+For `urn:ngsi-ld:Building:barn002` return the name of the enity in _French_ by adding the `lang=fr` parameter
+
+```console
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:barn002' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Accept: application/ld+json'  \
+  -d 'type=Building' \
+  -d 'attrs=name' \
+  -d 'lang=fr'
+```
+
+#### Response:
+
+Since **French** is not a supported language for this Enitity, but a default alternative is present (as
+indicated by the `@none` attribute), the default `@none` value is returned.
+The **Language Property** is returned as an ordinary **Property** and only
+the value of the default string is returned.
+
+```json
+{
+  "id": "urn:ngsi-ld:Building:barn002",
+  "type": "Building",
+  "name": {
+    "type": "Property",
+    "lang": "@none",
+    "value": "The Big Red Barn"
+  },
+  "@context": [
+    "http://context/ngsi-context.jsonld",
+    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+  ]
+}
+```
+
+#### 8️⃣ Request:
+
+For `urn:ngsi-ld:Building:farm001` return the name of the entity in _French_ by adding the `lang=fr` parameter
+
+```console
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Accept: application/ld+json'  \
+  -d 'type=Building' \
+  -d 'attrs=name' \
+  -d 'lang=fr'
+```
+
+#### Response:
+
+Since _French_ is not a supported language, and not default alternative is present (as
+indicated by the `@none` attribute), another value in the set is returned, in this
+case the string in **English** as shown by the `"@lang": "en"` sub-property.
+Once again the **Language Property** is returned as an ordinary **Property** and only
+the value of the _English_ string is returned.
+
+```json
+{
+  "id": "urn:ngsi-ld:Building:farm001",
+  "type": "Building",
+  "name": {
+    "type": "Property",
+    "lang": "en",
+    "value": "Victory Farm"
+  },
+  "@context": [
+    "http://context/ngsi-context.jsonld",
+    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+  ]
+}
+```
 
 ### Querying for Multilingual Data
 
-Use the standard Object attribute bracket `[ ]` notation when querying `LanguageProperties`. For example, if we want to
-obtain the Building whose name is equal to `Big Red Barn` in English.
+Use the standard Object attribute bracket `[ ]` notation when querying individual languages within `LanguageProperties`. For example, if we want to
+obtain the Building whose name is equal to `Big Red Barn` in _English_.
 
-#### :seven: Request:
+#### 9️⃣ Request:
 
 ```console
-curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Building&attrs=name&q=name[en]%3D%3D%22Big%20Red%20Barn%22' \
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
-  -H 'Accept: application/ld+json'
+  -H 'Accept: application/ld+json'  \
+  -d 'type=Building' \
+  -d 'attrs=name' \
+  -d 'q=name[en]==%22Big%20Red%20Barn%22'
 ```
 
 #### Response:
-
-```json
-[
-  {
-    "id" : "urn:ngsi-ld:Building:barn002",
-    "type" : "Building",
-    "name" : {
-      "type" : "LanguageProperty",
-      "languageMap" : {
-        "@none" : "The Big Red Barn",
-        "en" : "Big Red Barn",
-        "de" : "Große Rote Scheune",
-        "ja" : "大きな赤い納屋"
-      }
-    },
-    "@context" : [ "http://context/ngsi-context.jsonld", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld" ]
-  }
-]
-```
-
-Now, I wanted to receive the response but corresponding to `Große Rote Scheune` in *Any* language:
-
-#### :eight: Request:
-
-```console
-curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Building&attrs=name&q=name[*]%3D%3D%22Gro%C3%9Fe%20Rote%20Scheune%22' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
-  -H 'Accept: application/ld+json'
-```
-
-
-#### Response:
-
-Using the Asterisk Syntax `*` checks for all available languages.
 
 ```json
 [
@@ -589,55 +636,59 @@ Using the Asterisk Syntax `*` checks for all available languages.
     "id": "urn:ngsi-ld:Building:barn002",
     "type": "Building",
     "name": {
-        "type": "LanguageProperty",
-        "languageMap": {
-            "@none" : "The Big Red Barn",
-            "en": "Big Red Barn",
-            "de": "Große Rote Scheune",
-            "ja": "大きな赤い納屋"
-        }
+      "type": "LanguageProperty",
+      "languageMap": {
+        "@none": "The Big Red Barn",
+        "en": "Big Red Barn",
+        "de": "Große Rote Scheune",
+        "ja": "大きな赤い納屋"
+      }
     },
     "@context": [
-        "http://context/ngsi-context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+      "http://context/ngsi-context.jsonld",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
     ]
   }
 ]
 ```
 
+Now, I wanted to receive the response but corresponding to `Big Red Barn` in _Any_ language:
+Using the Asterisk Syntax `*` to check for data in all available languages.
 
-
-### Querying for Multilingual Data
-
-Use the standard Object attribute bracket `[ ]` notation when querying `LanguageProperties`. For example, if we want to
-
-#### :nine: Request:
+#### 1️⃣0️⃣ Request:
 
 ```console
-curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Building&lang=fr&attrs=name&q=name[*]%3D%3D%22Gro%C3%9Fe%20Rote%20Scheune%22' \
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
-  -H 'Accept: application/ld+json'
+  -H 'Accept: application/ld+json'  \
+  -d 'type=Building' \
+  -d 'attrs=name' \
+  -d 'q=name[*]==%22Big%20Red%20Barn%22'
 ```
 
+#### Response:
 
-#### :one::zero: Request:
-
-
-
-```console
-curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Building&attrs=name&q=name[en]==%22Big%20Red%20Barn%22&lang=fr' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
-  -H 'Accept: application/ld+json'
+```json
+[
+  {
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "Building",
+    "name": {
+      "type": "LanguageProperty",
+      "languageMap": {
+        "@none": "The Big Red Barn",
+        "en": "Big Red Barn",
+        "de": "Große Rote Scheune",
+        "ja": "大きな赤い納屋"
+      }
+    },
+    "@context": [
+      "http://context/ngsi-context.jsonld",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
+  }
+]
 ```
-
-#### :one::zero: Request:
-
-```console
-curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Building&attrs=name&q=name[en]==%Victory%20Farm%22&lang=fr' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
-  -H 'Accept: application/ld+json'
-```
-
 
 ## Using an alternative `@context`
 
@@ -645,14 +696,14 @@ The simple **NGSI-LD** `@context` is merely a mechanism for mapping URNs. It is 
 data_ using a different set of short names, in different languages.
 
 The `alternate-context-fi.jsonld` maps the names of various attributes to their equivalents in Finnish. The
-`alternate-context-it.jsonld` provides their equivalent in Italian. If it is supplied in the request, a query can be 
+`alternate-context-it.jsonld` provides their equivalent in Italian. If it is supplied in the request, a query can be
 made using alternate short names (e.g., `type=Building` becomes `type=PuntoDiInteresse` or
 `type=KiinnostuksenKohde`).
 
 There is a limitation in this mapping, it is not possible to change the core context attribute names, like `id`, `type`,
 or `@context` for example.
 
-Let's try to recover the information about the farm using the alternate context file for the *German*
+Let's try to recover the information about the farm using the alternate context file for the _German_
 language.
 
 #### :nine: Request:
@@ -666,8 +717,8 @@ curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Geb%C3%A4ude&q=name[
 #### Response:
 
 The response is returned in JSON-LD format with short form attribute names (`kategorie`, `name`, `PuntoDiInteresse`)
-which correspond to the short names provided in the alternate context. Note that core context terms (`id`, `type`, 
-`value`, etc.) cannot be overridden directly but would require an additional **JSON-LD** expansion/compaction operation 
+which correspond to the short names provided in the alternate context. Note that core context terms (`id`, `type`,
+`value`, etc.) cannot be overridden directly but would require an additional **JSON-LD** expansion/compaction operation
 (programmatically).
 
 ```json
@@ -678,9 +729,9 @@ which correspond to the short names provided in the alternate context. Note that
     "name": {
       "type": "LanguageProperty",
       "languageMap": {
-          "en": "Big Red Barn",
-          "de": "Große Rote Scheune",
-          "ja": "大きな赤い納屋"
+        "en": "Big Red Barn",
+        "de": "Große Rote Scheune",
+        "ja": "大きな赤い納屋"
       }
     },
     "kategorie": {
@@ -688,14 +739,14 @@ which correspond to the short names provided in the alternate context. Note that
       "vocab": "scheune"
     },
     "@context": [
-        "http://context/alternate-context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+      "http://context/alternate-context.jsonld",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
     ]
   }
 ]
 ```
 
-If we change the context to a *Finnish* language:
+If we change the context to a _Finnish_ language:
 
 #### :ten: Request:
 
@@ -718,10 +769,7 @@ The response is returned in JSON-LD format with short form attribute names (`luo
     "luokka": "107",
     "location": {
       "type": "Point",
-      "coordinates": [
-        60.17021,
-        24.95212
-      ]
+      "coordinates": [60.17021, 24.95212]
     },
     "nimi": {
       "languageMap": {
