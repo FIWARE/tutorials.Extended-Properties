@@ -20,22 +20,23 @@ This tutorial examines the keyword syntax tokens of JSON-LD and introduces custo
 <details>
 <summary><strong>Details</strong></summary>
 
-- [NGSI-LD Property subclasses](#ngsi-ld-property-subclasses)
-  - [Contents](#contents)
 - [Understanding JSON-LD `@keywords`](#understanding-json-ld-keywords)
   - [Entities within a Farm Management Information System (FMIS)](#entities-within-a-farm-management-information-system-fmis)
-  - [Architecture](#architecture)
-  - [Prerequisites](#prerequisites)
-    - [Docker Engine](#docker-engine-)
-    - [Start Up](#start-up)
-    - [Reading `@context` files](#reading-context-files)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+  - [Docker Engine](#docker-engine-)
+- [Start Up](#start-up)
+  - [Reading `@context` files](#reading-context-files)
+- [NGSI-LD LanguageProperty](#ngsi-ld-languageproperty)
   - [Working with multilanguage properties](#working-with-multilanguage-properties)
     - [Creating a new data entity](#creating-a-new-data-entity)
     - [Reading multilingual data in normalised format](#reading-multilingual-data-in-normalised-format)
     - [Reading multilingual data in simplified format](#reading-multilingual-data-in-simplified-format)
     - [Fallbacks when requesting data for an unsupported Language](#fallbacks-when-requesting-data-for-an-unsupported-language)
     - [Querying for Multilingual Data](#querying-for-multilingual-data)
-  - [Using an alternative `@context`](#using-an-alternative-context)
+- [NGSI-LD VocabularyProperty](#ngsi-ld-vocabularyproperty)
+  - [Enumerations and using an alternative `@context`](#enumerations-and-using-an-alternative-context)
+- [Next Steps](#next-steps)
 
 </details>
 
@@ -149,7 +150,7 @@ regulatory reasons. For example, the names of ingredients within a pesticide,
 could be regulated by law and the required name could differ based on the market in which the product is sold (e.g. `Water`, `H₂O`, `Hydrogen Hydroxide`, `Oxygen Dihydride`,
 `Hydric Acid`)
 
-## Architecture
+# Architecture
 
 The demo application will send and receive NGSI-LD calls to a compliant context broker. Although the standardised NGSI-LD
 interface is available across multiple context brokers, we only need to pick one - for example the
@@ -237,7 +238,7 @@ listening on the default port `5432` and the httpd web server is offering `@cont
 are also exposing ports externally - this is purely for the tutorial access - so that cUrl or Postman can access them
 without being part of the same network. The command-line initialization should be self-explanatory.
 
-## Prerequisites
+# Prerequisites
 
 ### Docker Engine <img src="https://www.docker.com/favicon.ico" align="left"  height="30" width="30" style="border-right-style:solid; border-right-width:10px; border-color:transparent; background: transparent">
 
@@ -256,7 +257,7 @@ Compose V1 is discontinued, nevertheless Compose V2 has replaced it and is now i
 Desktop versions. Therefore, it is not needed to install the extension to the docker engine to execute the
 docker compose commands.
 
-### Start Up
+# Start Up
 
 All services can be initialised from the command-line by running the [services](/services) Bash script provided within
 the repository. Please clone the repository and create the necessary images by running the commands as shown:
@@ -268,7 +269,9 @@ cd tutorials.Extended-Properties
 ./services [start]
 ```
 
-> **Note:** If you want to clean up and start over again you can do so with the following command:
+> [!NOTE]
+>
+> If you want to clean up and start over again you can do so with the following command:
 >
 > ```
 > ./services stop
@@ -276,7 +279,7 @@ cd tutorials.Extended-Properties
 
 ---
 
-### Reading `@context` files
+## Reading `@context` files
 
 Two `@context` files have been generated and hosted on the tutorial application. They would be used by different organizations within the data space, and internally they define the names of attributes and enumerations in different ways.
 
@@ -292,6 +295,8 @@ The full data model description for a **Building** entity as used in this tutori
 [Smart Data Models definition](https://github.com/smart-data-models/dataModel.Building/tree/master/Building).
 A [Swagger Specification](https://petstore.swagger.io/?url=https://smart-data-models.github.io/dataModel.Building/Building/swagger.yaml)
 of the same model is also available, and would be used to generate code stubs in a full application.
+
+# NGSI-LD LanguageProperty
 
 ## Working with multilanguage properties
 
@@ -690,50 +695,171 @@ curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
 ]
 ```
 
-## Using an alternative `@context`
+# NGSI-LD VocabularyProperty
 
-The simple **NGSI-LD** `@context` is merely a mechanism for mapping URNs. It is therefore possible to retrieve _the same
-data_ using a different set of short names, in different languages.
+## Enumerations and using an alternative `@context`
 
-The `alternate-context-fi.jsonld` maps the names of various attributes to their equivalents in Finnish. The
-`alternate-context-it.jsonld` provides their equivalent in Italian. If it is supplied in the request, a query can be
-made using alternate short names (e.g., `type=Building` becomes `type=PuntoDiInteresse` or
-`type=KiinnostuksenKohde`).
+The User's `@context` is a mechanism for mapping URNs and defining the Entities held within
+the system It is therefore possible to retrieve _the same
+data_ using a different set of short names for the attributes, and in the case of a **VocabularyProperty**, different short names for the values of the attributes themselves. This is particularly useful when dealing with distributed data, federations and data spaces as the end user many not have full control of data held within another participant's context broker.
 
-There is a limitation in this mapping, it is not possible to change the core context attribute names, like `id`, `type`,
-or `@context` for example.
+When the **Building** entities were created, we used an `@context` file called `ngsi-context.jsonld`.
+Within the `ngsi-context.jsonld` file, we have already mapped many terms as shown:
 
-Let's try to recover the information about the farm using the alternate context file for the _German_
-language.
+```json
+{
+  "@context": {
+    "type": "@type",
+    "id": "@id",
+    "ngsi-ld": "https://uri.etsi.org/ngsi-ld/",
+    "fiware": "https://uri.fiware.org/ns/dataModels#",
+    "Building": "fiware:Building",
+    "barn": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn",
+    "category": "fiware:category",
+    "farm": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dfarm"
+  }
+}
+```
 
-#### :nine: Request:
+This mean that internally the long URIs for the `category` are being used, as can be proven by making a request without adding a User `@context`.
+
+#### 1️⃣1️⃣ Request:
 
 ```console
-curl -L -g 'http://localhost:1026/ngsi-ld/v1/entities/?type=Geb%C3%A4ude&q=name[*]%3D%3D%22Gro%C3%9Fe%20Rote%20Scheune%22&lang=en&attrs=name%2Ckategorie' \
-  -H 'Link: <http://context/alternate-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
-  -H 'Accept: application/ld+json'
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
+  -H 'Accept: application/ld+json'  \
+  -d 'type=https://uri.fiware.org/ns/dataModels%23Building' \
+  -d 'attrs=https://uri.fiware.org/ns/dataModels%23category'
 ```
 
 #### Response:
 
-The response is returned in JSON-LD format with short form attribute names (`kategorie`, `name`, `PuntoDiInteresse`)
-which correspond to the short names provided in the alternate context. Note that core context terms (`id`, `type`,
-`value`, etc.) cannot be overridden directly but would require an additional **JSON-LD** expansion/compaction operation
-(programmatically).
+As can be seen, two Building entities are returned with the long names for all the attributes, and in the case of a `vocab` for the attribute value as well.
+Terms defined in the core context (such as `id`, `type`, `vocab` and `VocabularyProperty`) are not
+expanded, as the core context is implied as a default.
 
 ```json
 [
   {
+    "id": "urn:ngsi-ld:Building:farm001",
+    "type": "https://uri.fiware.org/ns/dataModels#Building",
+    "https://uri.fiware.org/ns/dataModels#category": {
+      "type": "VocabularyProperty",
+      "vocab": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dfarm"
+    },
+    "@context": [
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
+  },
+  {
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "https://uri.fiware.org/ns/dataModels#Building",
+    "https://uri.fiware.org/ns/dataModels#category": {
+      "type": "VocabularyProperty",
+      "vocab": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn"
+    },
+    "@context": [
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
+  }
+]
+```
+
+#### 1️⃣2️⃣ Request:
+
+If the `ngsi-context.jsonld` `@context` is included as a `Link` header in the request, the response will convert all the attribute names to short names, and in the case of a **VocabularyProperty**, use the short names for the value as well.
+
+```console
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
+  -H 'Accept: application/ld+json'  \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'type=Building' \
+  -d 'attrs=category'
+```
+
+#### Response:
+
+In the response the categories `farm` and `barn` are used.
+
+```json
+[
+  {
+    "id": "urn:ngsi-ld:Building:farm001",
+    "type": "Building",
+    "category": {
+      "type": "VocabularyProperty",
+      "vocab": "farm"
+    },
+    "@context": [
+      "http://context/ngsi-context.jsonld",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
+  },
+  {
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "Building",
+    "category": {
+      "type": "VocabularyProperty",
+      "vocab": "barn"
+    },
+    "@context": [
+      "http://context/ngsi-context.jsonld",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
+  }
+]
+```
+
+The `alternate-context.jsonld` `@context` file maps all the terms and enumerations to the names in German as shown:
+
+```json
+{
+  "@context": {
+    "type": "@type",
+    "id": "@id",
+    "ngsi-ld": "https://uri.etsi.org/ngsi-ld/",
+    "fiware": "https://uri.fiware.org/ns/dataModels#",
+    "Gebäude": "fiware:Building",
+    "scheune": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dbarn",
+    "kategorie": "fiware:category",
+    "bauernhof": "https://wiki.openstreetmap.org/wiki/Tag:building%3Dfarm"
+  }
+}
+```
+
+#### 1️⃣3️⃣ Request:
+
+When `alternate-context.jsonld` included as a `Link` header in the request, the response will convert all the attribute names to short names used in `alternate-context.jsonld`, and in the case of a **VocabularyProperty**, return the short names for the value as well.
+
+```console
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
+  -H 'Accept: application/ld+json'  \
+  -H 'Link: <http://context/alternate-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'type=Geb%C3%A4ude' \
+  -d 'attrs=kategorie'
+```
+
+#### Response:
+
+In the response the category attribute is renamed `kategorie` and the values `bauernhof` and `scheune` are used. The shortname of the Entity `type` has also been amended.
+
+```json
+[
+  {
+    "id": "urn:ngsi-ld:Building:farm001",
+    "type": "Gebäude",
+    "kategorie": {
+      "type": "VocabularyProperty",
+      "vocab": "bauernhof"
+    },
+    "@context": [
+      "http://context/alternate-context.jsonld",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
+  },
+  {
     "id": "urn:ngsi-ld:Building:barn002",
     "type": "Gebäude",
-    "name": {
-      "type": "LanguageProperty",
-      "languageMap": {
-        "en": "Big Red Barn",
-        "de": "Große Rote Scheune",
-        "ja": "大きな赤い納屋"
-      }
-    },
     "kategorie": {
       "type": "VocabularyProperty",
       "vocab": "scheune"
@@ -746,41 +872,73 @@ which correspond to the short names provided in the alternate context. Note that
 ]
 ```
 
-If we change the context to a _Finnish_ language:
+#### 1️⃣4️⃣ Request:
 
-#### :ten: Request:
+To make a key-values or simplified request, include the `format=simplified'` parameter
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Geb%C3%A4ude&q=kategorie%3D%3Dbauernhof&attrs=name%2Ckategorie' \
--H 'Link: <http://context/alternate-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Accept: application/ld+json'
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:barn002' \
+  -H 'Accept: application/ld+json'  \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'attrs=category' \
+  -d 'format=simplified'
 ```
 
 #### Response:
 
-The response is returned in JSON-LD format with short form attribute names (`luokka`, `nimi`, `KiinnostuksenKohde`).
+The simplified response retains the `vocab` attribute (which implies that the right-hand side of the `category` attribute can be re-expanded using JSON-LD `@vocab`)
+
+```json
+{
+  "id": "urn:ngsi-ld:Building:barn002",
+  "type": "Building",
+  "category": {
+    "vocab": "barn"
+  },
+  "@context": [
+    "http://context/nsgi-context.jsonld",
+    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+  ]
+}
+```
+
+#### 1️⃣5️⃣ Request:
+
+When querying using the `q` parameter, also include the `expandValues` parameter to indicate which attributes in the query are **VocabularyProperties**
+
+```console
+curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
+  -H 'Accept: application/ld+json'  \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/json"' \
+  -d 'type=Building' \
+  -d 'attrs=category' \
+  -d 'q=category==%22barn%22' \
+  -d 'expandValues=category'
+```
+
+#### Response:
 
 ```json
 [
   {
-    "@context": "http://context/alternate-context-fi.jsonld",
-    "id": "urn:ngsi-ld:Building:poi123456",
-    "type": "KiinnostuksenKohde",
-    "luokka": "107",
-    "location": {
-      "type": "Point",
-      "coordinates": [60.17021, 24.95212]
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "Building",
+    "category": {
+      "type": "VocabularyProperty",
+      "vocab": "barn"
     },
-    "nimi": {
-      "languageMap": {
-        "fi": "Helsingin tuomiokirkko",
-        "en": "Helsinki Cathedral",
-        "it": "Duomo di Helsinki"
-      }
-    }
+    "@context": [
+      "http://context/ngsi-context.jsonld",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
+    ]
   }
 ]
 ```
+
+# Next Steps
+
+Want to learn how to add more complexity to your application by adding advanced features? You can find out by reading
+the other [tutorials in this series](https://ngsi-ld-tutorials.rtfd.io)
 
 ---
 
