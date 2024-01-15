@@ -310,6 +310,7 @@ strings representing [IETF RFC 5646](https://www.rfc-editor.org/info/rfc5646) la
 
 ### Creating a new data entity
 
+This example creates an entity with a **LanguageProperty** and a **VocabularyProperty**.
 Let's create a farm **Building** entity in which we want to make the `name` available in three different languages, _English_, _German_, and _Japanese_. The process will be to
 send a **POST** request to the Broker with the following information:
 
@@ -370,6 +371,7 @@ Content-Length: 0
 
 #### 2️⃣ Request:
 
+This example creates a second entity with a **LanguageProperty** and a **VocabularyProperty**.
 Each subsequent entity must have a unique `id` for the given `type`. Note that within a `languageMap`, the `@none` simplified pair indicates the default fallback value to be displayed for unknown languages.
 
 ```console
@@ -417,7 +419,7 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
 
 ### Reading multilingual data in normalised format
 
-Imagining that we want to get `name` of a specific entity (`urn:ngsi-ld:Building:farm001`) in normalised
+This example retrieves a **LanguageProperty** in normalized format. If we want to get `name` of a specific entity (`urn:ngsi-ld:Building:farm001`) in normalised
 format and without any reference to the language that we want to obtain the data. We should execute the following
 command:
 
@@ -481,6 +483,7 @@ sub-attribute.
 
 ### Reading multilingual data in simplified format
 
+This example retrieves a **LanguageProperty** in key-values format.
 If we wanted to get the response in simplified format, we need to send the corresponding request parameter `format`
 equal to `simplified`:
 
@@ -529,7 +532,7 @@ curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:f
 #### Response:
 
 In this case, the **Language Property** is returned as an ordinary **Property** and only
-the value of the _English_ string is returned. Sub attributes are not returned in the simpliied format.
+the value of the _English_ string is returned. Sub attributes are not returned in the simplified format.
 
 ```json
 {
@@ -559,7 +562,7 @@ curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:b
 
 #### Response:
 
-Since **French** is not a supported language for this Enitity, but a default alternative is present (as
+Since **French** is not a supported language for this Entity, but a default alternative is present (as
 indicated by the `@none` attribute), the default `@none` value is returned.
 The **Language Property** is returned as an ordinary **Property** and only
 the value of the default string is returned.
@@ -721,7 +724,7 @@ Within the `ngsi-context.jsonld` file, we have already mapped many terms as show
 }
 ```
 
-This mean that internally the long URIs for the `category` are being used, as can be proven by making a request without adding a User `@context`.
+This means that internally the long URIs for the `category` are being used, as can be proven by making a request without adding a User `@context`.
 
 #### 1️⃣1️⃣ Request:
 
