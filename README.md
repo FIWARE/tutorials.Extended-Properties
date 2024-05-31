@@ -1,7 +1,4 @@
-# NGSI-LD Property subclasses
-
-[<img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"  align="left" />](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.07.01_60/gs_cim009v010701p.pdf)
-[<img src="https://fiware.github.io/tutorials.Getting-Started/img/Fiware.png" align="left" width="162">](https://www.fiware.org/)<br/>
+[![FIWARE Banner](https://fiware.github.io/tutorials.Extended-Properties/img/fiware.png)](https://www.fiware.org/developers)
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
 [![License: MIT](https://img.shields.io/github/license/FIWARE/tutorials.Getting-Started.svg)](https://opensource.org/licenses/MIT)
@@ -33,4 +30,4 @@ git checkout NGSI-LD
 
 ## License
 
-[MIT](LICENSE) © 2020-2024 FIWARE Foundation e.V.
+[MIT](LICENSE) © 2023-2024 FIWARE Foundation e.V.
