@@ -256,7 +256,7 @@ ld-context:
         - data-models:/usr/local/apache2/htdocs/
     healthcheck:
         test:
-            (wget --server-response --spider --quiet  http://ld-context/ngsi-context.jsonld 2>&1 | awk 'NR==1{print
+            (wget --server-response --spider --quiet  http://context/user-context.jsonld 2>&1 | awk 'NR==1{print
             $$2}'|  grep -q -e "200") || exit 1
 ```
 
@@ -610,7 +610,7 @@ Since **French** is not a supported language for this Entity, but a default alte
         "value": "The Big Red Barn"
     },
     "@context": [
-        "http://context/ngsi-context.jsonld",
+        "http://context/user-context.jsonld",
         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
     ]
 }
@@ -646,7 +646,7 @@ _English_ string is returned.
         "value": "Victory Farm"
     },
     "@context": [
-        "http://context/ngsi-context.jsonld",
+        "http://context/user-context.jsonld",
         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
     ]
 }
@@ -685,7 +685,7 @@ curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
             }
         },
         "@context": [
-            "http://context/ngsi-context.jsonld",
+            "http://context/user-context.jsonld",
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
         ]
     }
@@ -723,7 +723,7 @@ curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
             }
         },
         "@context": [
-            "http://context/ngsi-context.jsonld",
+            "http://context/user-context.jsonld",
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
         ]
     }
@@ -826,7 +826,7 @@ In the response the categories `farm` and `barn` are used.
             "vocab": "farm"
         },
         "@context": [
-            "http://context/ngsi-context.jsonld",
+            "http://context/user-context.jsonld",
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
         ]
     },
@@ -838,7 +838,7 @@ In the response the categories `farm` and `barn` are used.
             "vocab": "barn"
         },
         "@context": [
-            "http://context/ngsi-context.jsonld",
+            "http://context/user-context.jsonld",
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
         ]
     }
@@ -968,7 +968,7 @@ curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
             "vocab": "barn"
         },
         "@context": [
-            "http://context/ngsi-context.jsonld",
+            "http://context/user-context.jsonld",
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
         ]
     }
