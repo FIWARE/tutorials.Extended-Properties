@@ -410,7 +410,7 @@ the default fallback value to be displayed for unknown languages.
 ```console
 curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
   -H 'Content-Type: application/json' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -d '{
     "id": "urn:ngsi-ld:Building:barn002",
     "type": "Building",
@@ -460,7 +460,7 @@ the data. We should execute the following command:
 
 ```console
 curl -G -X  GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -d 'attrs=name'
 ```
 
@@ -491,7 +491,7 @@ language, we should specify the corresponding query parameter `lang` equal to `d
 
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
   -d 'attrs=name' \
   -d 'lang=de'
 ```
@@ -524,7 +524,7 @@ format, we need to send the corresponding request parameter `format` equal to `s
 
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -d 'attrs=name' \
   -d 'format=simplified'
 ```
@@ -556,7 +556,7 @@ be present in the request.
 
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -d 'attrs=name' \
   -d 'format=simplified' \
   -d 'lang=en'
@@ -587,7 +587,7 @@ For `urn:ngsi-ld:Building:barn002` return the name of the enity in _French_ by a
 
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:barn002' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'Accept: application/ld+json'  \
   -d 'type=Building' \
   -d 'attrs=name' \
@@ -622,7 +622,7 @@ For `urn:ngsi-ld:Building:farm001` return the name of the entity in _French_ by 
 
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:farm001' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'Accept: application/ld+json'  \
   -d 'type=Building' \
   -d 'attrs=name' \
@@ -661,7 +661,7 @@ For example, if we want to obtain the Building whose name is equal to `Big Red B
 
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'Accept: application/ld+json'  \
   -d 'type=Building' \
   -d 'attrs=name' \
@@ -699,7 +699,7 @@ Now, I wanted to receive the response but corresponding to `Big Red Barn` in _An
 
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'Accept: application/ld+json'  \
   -d 'type=Building' \
   -d 'attrs=name' \
@@ -807,7 +807,7 @@ attribute names to short names, and in the case of a **VocabularyProperty**, use
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
   -H 'Accept: application/ld+json'  \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -d 'type=Building' \
   -d 'attrs=category'
 ```
@@ -917,7 +917,7 @@ To make a key-values or simplified request, include the `format=simplified'` par
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:barn002' \
   -H 'Accept: application/ld+json'  \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -d 'attrs=category' \
   -d 'format=simplified'
 ```
@@ -949,7 +949,7 @@ query are **VocabularyProperties**
 ```console
 curl -G -X GET 'http://localhost:1026/ngsi-ld/v1/entities/' \
   -H 'Accept: application/ld+json'  \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/json"' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/json"' \
   -d 'type=Building' \
   -d 'attrs=category' \
   -d 'q=category==%22barn%22' \
