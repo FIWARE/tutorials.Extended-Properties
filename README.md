@@ -386,7 +386,7 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
           "ja": "ビクトリーファーム"
         }
     },
-    "@context": "http://context/ngsi-context.jsonld"
+    "@context": "http://context/user-context.jsonld"
 }'
 ```
 
@@ -935,7 +935,7 @@ attribute can be re-expanded using JSON-LD `@vocab`)
         "vocab": "barn"
     },
     "@context": [
-        "http://context/nsgi-context.jsonld",
+        "http://context/user-context.jsonld",
         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.7.jsonld"
     ]
 }
