@@ -19,7 +19,7 @@ properties to cover multilingual capabilities and preferred enumeration names wh
 [cUrl](https://ec.haxx.se/) commands throughout.
 
 [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/217860-3b538d21-0f19-4c63-a9d6-e184ef829ca7?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D217860-3b538d21-0f19-4c63-a9d6-e184ef829ca7%26entityType%3Dcollection%26workspaceId%3Db6e7fcf4-ff0c-47cb-ada4-e222ddeee5ac)
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://github.com/flopezag/tutorials.Multilanguage/tree/develop)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/flopezag/tutorials.Multilanguage/tree/develop)
 
 ## Contents
 
