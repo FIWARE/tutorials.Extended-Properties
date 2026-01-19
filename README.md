@@ -112,8 +112,8 @@ this principle, allowing the creation of NGSI-LD properties which directly confo
 
 -   An NGSI-LD **LanguageProperty** holds a set of internationalized strings and is defined using the JSON-LD
     `@language` keyword.
--   An NGSI-LD **VocabProperty** holds is a mapping of a URI to a value within the user'`@context` and is defined
-    using the JSON-LD `@vocab` keyword.
+-   An NGSI-LD **VocabProperty** holds is a mapping of a URI to a value within the user'`@context` and is defined using
+    the JSON-LD `@vocab` keyword.
 
 In each case, the meaning of the resultant payload will be altered according to the standard JSON-LD definitions, so the
 output NGSI-LD remains fully valid JSON-LD.
@@ -342,9 +342,9 @@ strings representing [IETF RFC 5646](https://www.rfc-editor.org/info/rfc5646) la
 
 ### Creating a new data entity
 
-This example creates an entity with a **LanguageProperty** and a **VocabProperty**. Let's create a farm
-**Building** entity in which we want to make the `name` available in three different languages, _English_, _German_, and
-_Japanese_. The process will be to send a **POST** request to the Broker with the following information:
+This example creates an entity with a **LanguageProperty** and a **VocabProperty**. Let's create a farm **Building**
+entity in which we want to make the `name` available in three different languages, _English_, _German_, and _Japanese_.
+The process will be to send a **POST** request to the Broker with the following information:
 
 #### 1️⃣ Request:
 
@@ -403,9 +403,9 @@ Content-Length: 0
 
 #### 2️⃣ Request:
 
-This example creates a second entity with a **LanguageProperty** and a **VocabProperty**. Each subsequent entity
-must have a unique `id` for the given `type`. Note that within a `languageMap`, the `@none` simplified pair indicates
-the default fallback value to be displayed for unknown languages.
+This example creates a second entity with a **LanguageProperty** and a **VocabProperty**. Each subsequent entity must
+have a unique `id` for the given `type`. Note that within a `languageMap`, the `@none` simplified pair indicates the
+default fallback value to be displayed for unknown languages.
 
 ```console
 curl -iX POST 'http://localhost:1026/ngsi-ld/v1/entities/' \
@@ -743,8 +743,8 @@ curl -G -X GET \
 
 The User's `@context` is a mechanism for mapping URNs and defining the Entities held within the system It is therefore
 possible to retrieve _the same data_ using a different set of short names for the attributes, and in the case of a
-**VocabProperty**, different short names for the values of the attributes themselves. This is particularly useful
-when dealing with distributed data, federations and data spaces as the end user many not have full control of data held
+**VocabProperty**, different short names for the values of the attributes themselves. This is particularly useful when
+dealing with distributed data, federations and data spaces as the end user many not have full control of data held
 within another participant's context broker.
 
 When the **Building** entities were created, we used an `@context` file called `ngsi-context.jsonld`. Within the
@@ -874,8 +874,8 @@ The `alternate-context.jsonld` `@context` file maps all the terms and enumeratio
 #### 1️⃣3️⃣ Request:
 
 When `alternate-context.jsonld` included as a `Link` header in the request, the response will convert all the attribute
-names to short names used in `alternate-context.jsonld`, and in the case of a **VocabProperty**, return the short
-names for the value as well.
+names to short names used in `alternate-context.jsonld`, and in the case of a **VocabProperty**, return the short names
+for the value as well.
 
 ```console
 curl -G -X GET \
@@ -996,4 +996,4 @@ the other [tutorials in this series](https://ngsi-ld-tutorials.rtfd.io)
 
 ## License
 
-[MIT](LICENSE) © 2020-2025 FIWARE Foundation e.V.
+[MIT](LICENSE) © 2020-2026 FIWARE Foundation e.V.
