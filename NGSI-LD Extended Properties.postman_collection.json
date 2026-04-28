@@ -698,7 +698,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://{{context-broker}}/ngsi-ld/v1/entities/?type=Building&q=address%5BaddressLocality%5D==\"Tiergarten\"&options=keyValues",
+							"raw": "http://{{context-broker}}/ngsi-ld/v1/entities/?type=Building&q=address%5BaddressLocality%5D==\"Tiergarten\"&format=simplified",
 							"protocol": "http",
 							"host": [
 								"{{context-broker}}"
@@ -719,9 +719,9 @@
 									"value": "address%5BaddressLocality%5D==\"Tiergarten\""
 								},
 								{
-									"key": "options",
-									"value": "keyValues",
-									"description": "* `keyValues` option in order to get a more compact and brief representation, including just attribute values\n* `values` option combined with a list of attribute values  `attrs`  for an ordered list of attributes only"
+									"key": "format",
+									"value": "simplified",
+									"description": "* `simplified` - the response consists of JSON only without attribute `type`/`value` wrapper elements"
 								}
 							]
 						},
