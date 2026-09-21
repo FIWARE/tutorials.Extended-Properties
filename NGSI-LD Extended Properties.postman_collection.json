@@ -523,7 +523,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://{{context-broker}}/ngsi-ld/v1/entities/?type=https://uri.fiware.org/ns/dataModels%23Building&attrs=https://uri.fiware.org/ns/dataModels%23category",
+							"raw": "http://{{context-broker}}/ngsi-ld/v1/entities/?type=https://smartdatamodels.org/dataModel.Building/Building&attrs=https://smartdatamodels.org/dataModel.Building/category",
 							"protocol": "http",
 							"host": [
 								"{{context-broker}}"
@@ -537,11 +537,11 @@
 							"query": [
 								{
 									"key": "type",
-									"value": "https://uri.fiware.org/ns/dataModels%23Building"
+									"value": "https://smartdatamodels.org/dataModel.Building/Building"
 								},
 								{
 									"key": "attrs",
-									"value": "https://uri.fiware.org/ns/dataModels%23category"
+									"value": "https://smartdatamodels.org/dataModel.Building/category"
 								}
 							]
 						},
